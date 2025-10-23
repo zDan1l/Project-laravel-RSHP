@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\admin\RoleController;
 use App\Http\Controllers\admin\UserController;
 use App\Http\Controllers\admin\UserRoleController;
 use App\Http\Controllers\HomeController;
@@ -29,12 +30,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // Users Management
     Route::get('/users', [UserController::class, 'index'])->name('user.index');
     Route::get('/users-roles', [UserRoleController::class, 'index'])->name('user-role.index');
+    Route::get('/roles', [RoleController::class, 'index'])->name('role.index');
+    Route::get('/pemilik', [RoleController::class, 'index'])->name('pemilik.index');
     
-    
-    // Roles Management
-    Route::get('/roles', function () {
-        return view('admin.role.index');
-    })->name('role.index');
     
     Route::get('/roles/create', function () {
         return view('admin.role.create');
