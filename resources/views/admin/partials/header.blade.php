@@ -1,84 +1,12 @@
 <div class="topbar">
     <div class="topbar-left">
+        {{-- button toggle --}}
         <button class="sidebar-toggle" id="sidebar-toggle" type="button" title="Toggle Sidebar">
             <i class="fas fa-bars"></i>
         </button>
-        
-        <!-- Breadcrumb -->
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                @if(isset($breadcrumbs))
-                    @foreach($breadcrumbs as $breadcrumb)
-                        @if($loop->last)
-                            <li class="breadcrumb-item active" aria-current="page">{{ $breadcrumb['title'] }}</li>
-                        @else
-                            <li class="breadcrumb-item">
-                                <a href="{{ $breadcrumb['url'] }}">{{ $breadcrumb['title'] }}</a>
-                            </li>
-                        @endif
-                    @endforeach
-                @else
-                    <li class="breadcrumb-item active" aria-current="page">@yield('page-title', 'Dashboard')</li>
-                @endif
-            </ol>
-        </nav>
     </div>
 
     <div class="topbar-right">
-        <!-- Notifications -->
-        <div class="dropdown">
-            <button class="btn btn-link text-dark" type="button" data-bs-toggle="dropdown">
-                <i class="fas fa-bell"></i>
-                <span class="badge bg-danger badge-sm position-absolute translate-middle rounded-pill" style="top: 8px; left: 20px;">
-                    3
-                </span>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow" style="min-width: 300px;">
-                <li><h6 class="dropdown-header">Notifications</h6></li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                    <a class="dropdown-item d-flex align-items-center" href="#">
-                        <div class="me-3">
-                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                <i class="fas fa-paw text-white"></i>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="fw-bold">New Pet Registration</div>
-                            <div class="small text-muted">2 minutes ago</div>
-                        </div>
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item d-flex align-items-center" href="#">
-                        <div class="me-3">
-                            <div class="bg-success rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                <i class="fas fa-check text-white"></i>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="fw-bold">Treatment Completed</div>
-                            <div class="small text-muted">1 hour ago</div>
-                        </div>
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item d-flex align-items-center" href="#">
-                        <div class="me-3">
-                            <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                <i class="fas fa-exclamation text-white"></i>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="fw-bold">Appointment Reminder</div>
-                            <div class="small text-muted">3 hours ago</div>
-                        </div>
-                    </a>
-                </li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-center" href="#">View All Notifications</a></li>
-            </ul>
-        </div>
 
         <!-- User Profile -->
         <div class="dropdown user-dropdown">

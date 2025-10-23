@@ -2,9 +2,35 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class UserRole extends Model
+/**
+ * Model untuk tabel pivot role_user
+ * Extends Pivot untuk fitur-fitur khusus pivot table
+ */
+class UserRole extends Pivot
 {
-    //
+    protected $table = 'role_user';
+    protected $guarded = [];
+    
+    /**
+     * Relasi ke User
+     * 
+     * @return BelongsTo
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'iduser', 'iduser');
+    }
+    
+    /**
+     * Relasi ke Role
+     * 
+     * @return BelongsTo
+     */
+    public function role(): BelongsTo
+    {
+        return $this->belongsTo(Role::class, 'idrole', 'idrole');
+    }
 }

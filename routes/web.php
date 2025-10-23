@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Controllers\admin\UserController;
+use App\Http\Controllers\admin\UserRoleController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LoginController;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 
@@ -24,13 +27,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
     })->name('dashboard');
     
     // Users Management
-    Route::get('/users', function () {
-        return view('admin.user.index');
-    })->name('user.index');
+    Route::get('/users', [UserController::class, 'index'])->name('user.index');
+    Route::get('/users-roles', [UserRoleController::class, 'index'])->name('user-role.index');
     
-    Route::get('/users/create', function () {
-        return view('admin.user.create');
-    })->name('user.create');
     
     // Roles Management
     Route::get('/roles', function () {
@@ -41,14 +40,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         return view('admin.role.create');
     })->name('role.create');
     
-    // User Roles
-    Route::get('/user-roles', function () {
-        return view('admin.userrole.index');
-    })->name('userrole.index');
-    
-    Route::get('/user-roles/create', function () {
-        return view('admin.userrole.create');
-    })->name('userrole.create');
     
     // Pet Owners
     Route::get('/pemilik', function () {

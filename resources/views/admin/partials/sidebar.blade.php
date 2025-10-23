@@ -51,8 +51,8 @@
 
             <!-- User Roles -->
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.userrole.*') ? 'active' : '' }}" 
-                   href="{{ route('admin.userrole.index') }}">
+                <a class="nav-link {{ request()->routeIs('admin.user-role.*') ? 'active' : '' }}" 
+                   href="{{ route('admin.user-role.index') }}">
                     <i class="fas fa-user-shield"></i>
                     <span>User Roles</span>
                 </a>
