@@ -90,8 +90,8 @@
 
             <!-- Jenis Hewan -->
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.jenishewan.*') ? 'active' : '' }}" 
-                   href="{{ route('admin.jenishewan.index') }}">
+                <a class="nav-link {{ request()->routeIs('admin.jenis-hewan.*') ? 'active' : '' }}" 
+                   href="{{ route('admin.jenis-hewan.index') }}">
                     <i class="fas fa-dog"></i>
                     <span>Jenis Hewan</span>
                 </a>

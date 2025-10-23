@@ -3,9 +3,14 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\JenisHewan;
 use Illuminate\Http\Request;
 
 class JenisHewanController extends Controller
 {
-    //
+    public function index()
+    {
+        $items = JenisHewan::all();
+        return view('admin.jenishewan.index', compact('items'));
+    }
 }

@@ -1,5 +1,11 @@
 <?php
 
+use App\Http\Controllers\admin\JenisHewanController;
+use App\Http\Controllers\admin\KategoriController;
+use App\Http\Controllers\admin\KategoriKlinisController;
+use App\Http\Controllers\admin\KodeTindakanTerapiController;
+use App\Http\Controllers\admin\PemilikController;
+use App\Http\Controllers\admin\PetController;
 use App\Http\Controllers\admin\RoleController;
 use App\Http\Controllers\admin\UserController;
 use App\Http\Controllers\admin\UserRoleController;
@@ -31,67 +37,25 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('user.index');
     Route::get('/users-roles', [UserRoleController::class, 'index'])->name('user-role.index');
     Route::get('/roles', [RoleController::class, 'index'])->name('role.index');
-    Route::get('/pemilik', [RoleController::class, 'index'])->name('pemilik.index');
+    
+    // Pet Management
+    Route::get('/pemilik', [PemilikController::class, 'index'])->name('pemilik.index');
+    Route::get('/pets', [PetController::class, 'index'])->name('pet.index');
+    Route::get('/jenis-hewan', [JenisHewanController::class, 'index'])->name('jenis-hewan.index');
     
     
-    Route::get('/roles/create', function () {
-        return view('admin.role.create');
-    })->name('role.create');
-    
-    
-    // Pet Owners
-    Route::get('/pemilik', function () {
-        return view('admin.pemilik.index');
-    })->name('pemilik.index');
-    
-    Route::get('/pemilik/create', function () {
-        return view('admin.pemilik.create');
-    })->name('pemilik.create');
-    
-    // Pets
-    Route::get('/pets', function () {
-        return view('admin.pet.index');
-    })->name('pet.index');
-    
-    Route::get('/pets/create', function () {
-        return view('admin.pet.create');
-    })->name('pet.create');
-    
-    // Animal Types
-    Route::get('/jenis-hewan', function () {
-        return view('admin.jenishewan.index');
-    })->name('jenishewan.index');
-    
-    Route::get('/jenis-hewan/create', function () {
-        return view('admin.jenishewan.create');
-    })->name('jenishewan.create');
     
     // Categories
-    Route::get('/kategori', function () {
-        return view('admin.kategori.index');
-    })->name('kategori.index');
-    
-    Route::get('/kategori/create', function () {
-        return view('admin.kategori.create');
-    })->name('kategori.create');
-    
+    Route::get('/kategori', [KategoriController::class, 'index'])->name('kategori.index');
+    Route::get('/kategori/create', [KategoriController::class, 'create'])->name('kategori.create');
+
     // Clinical Categories
-    Route::get('/kategori-klinis', function () {
-        return view('admin.kategoriklinis.index');
-    })->name('kategoriklinis.index');
-    
-    Route::get('/kategori-klinis/create', function () {
-        return view('admin.kategoriklinis.create');
-    })->name('kategoriklinis.create');
-    
+    Route::get('/kategori-klinis', [KategoriKlinisController::class, 'index'])->name('kategoriklinis.index');
+    Route::get('/kategori-klinis/create', [KategoriKlinisController::class, 'create'])->name('kategoriklinis.create');
+
     // Treatment Codes
-    Route::get('/kode-tindakan', function () {
-        return view('admin.kodentindakan.index');
-    })->name('kodentindakan.index');
-    
-    Route::get('/kode-tindakan/create', function () {
-        return view('admin.kodentindakan.create');
-    })->name('kodentindakan.create');
+    Route::get('/kode-tindakan', [KodeTindakanTerapiController::class, 'index'])->name('kodentindakan.index');
+    Route::get('/kode-tindakan/create', [KodeTindakanTerapiController::class, 'create'])->name('kodentindakan.create');
 });
 
 // Logout Route

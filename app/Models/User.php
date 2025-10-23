@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -51,5 +52,10 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class, 'role_user', 'iduser', 'idrole')
                     ->using(UserRole::class)  // Menggunakan custom pivot model
                     ->withPivot('status');
+    }
+
+    public function pemilik(): HasMany
+    {
+        return $this->hasMany(Pemilik::class, 'iduser', 'iduser');
     }
 }
