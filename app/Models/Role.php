@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Role extends Model
@@ -16,10 +17,8 @@ class Role extends Model
      * 
      * @return BelongsToMany
      */
-    public function users(): BelongsToMany
+    public function userRole(): HasMany 
     {
-        return $this->belongsToMany(User::class, 'role_user', 'idrole', 'iduser')
-                    ->using(UserRole::class)  // Menggunakan custom pivot model
-                    ->withPivot('status');
+        return $this->hasMany(UserRole::class, 'idrole', 'dirole');
     }
 }

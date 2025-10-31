@@ -3,11 +3,12 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Models\UserRole;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -44,14 +45,14 @@ class User extends Authenticatable
         ];
     }
 
+    // Menggunakan tabel dan primary key custom
     protected $table = 'user';
-    protected $primaryKey = 'iduser';  // Tentukan primary key yang benar
+    protected $primaryKey = 'iduser';
+    public $timestamps = false;
 
-    public function roles(): BelongsToMany 
+    public function userRole(): HasMany 
     {
-        return $this->belongsToMany(Role::class, 'role_user', 'iduser', 'idrole')
-                    ->using(UserRole::class)  // Menggunakan custom pivot model
-                    ->withPivot('status');
+        return $this->hasMany(UserRole::class, 'iduser', 'iduser');
     }
 
     public function pemilik(): HasMany

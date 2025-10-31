@@ -1,30 +1,30 @@
 <?php
 
-use App\Http\Controllers\admin\JenisHewanController;
-use App\Http\Controllers\admin\KategoriController;
-use App\Http\Controllers\admin\KategoriKlinisController;
-use App\Http\Controllers\admin\KodeTindakanTerapiController;
-use App\Http\Controllers\admin\PemilikController;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LoginController;
 use App\Http\Controllers\admin\PetController;
 use App\Http\Controllers\admin\RoleController;
 use App\Http\Controllers\admin\UserController;
+use App\Http\Controllers\admin\PemilikController;
+use App\Http\Controllers\admin\KategoriController;
 use App\Http\Controllers\admin\UserRoleController;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\LoginController;
-use App\Models\User;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\admin\JenisHewanController;
+use App\Http\Controllers\admin\KategoriKlinisController;
+use App\Http\Controllers\admin\KodeTindakanTerapiController;
 
 
+Auth::routes();
 
 Route::get('/', [HomeController::class, 'home'])->name('home');
-
-
+// Route::get('/', [HomeController::class, 'home'])->name('home');
 
 Route::get('/tentang-kami', [HomeController::class, 'tentang'])->name('tentang');
 Route::get('/layanan', [HomeController::class, 'layanan'])->name('layanan');
 Route::get('/struktur', [HomeController::class, 'struktur'])->name('struktur');
 Route::get('/kontak', [HomeController::class, 'kontak'])->name('kontak');
-Route::get('/login', [LoginController::class, 'index'])->name('login');
 
 // Admin Routes
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -67,30 +67,4 @@ Route::post('/logout', function () {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
