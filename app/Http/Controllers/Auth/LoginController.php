@@ -31,7 +31,59 @@ class LoginController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = '/admin/dashboard';
+
+    /**
+     * Get the post login redirect path based on user role.
+     *
+     * @return string
+     */
+    protected function redirectTo()
+    {
+        $user = Auth::user();
+        
+        // Load user role with active status
+        $user = User::with(['userRole' => function($query) {
+            $query->where('status', 1);
+        }, 'userRole.role'])
+        ->find($user->iduser);
+        
+        // Get user's active role
+        $userRole = $user->userRole->first();
+        
+        if ($userRole && $userRole->role) {
+            $roleName = strtolower($userRole->role->nama_role ?? '');
+            
+            // Redirect based on role
+            switch ($roleName) {
+                case 'admin':
+                case 'administrator':
+                    return '/admin/dashboard';
+                    
+                case 'dokter':
+                case 'doctor':
+                    return '/dokter/dashboard';
+                    
+                case 'perawat':
+                case 'nurse':
+                    return '/perawat/dashboard';
+                    
+                case 'resepsionis':
+                case 'receptionist':
+                    return '/resepsionis/dashboard';
+                    
+                case 'apoteker':
+                case 'pharmacist':
+                    return '/apoteker/dashboard';
+                    
+                default:
+                    return '/home';
+            }
+        }
+        
+        // Default redirect if no role found
+        return '/home';
+    }
 
     /**
      * Create a new controller instance.

@@ -16,7 +16,7 @@ class UserRoleController extends Controller
     public function index()
     {
         // Ambil users dengan roles dan data pivot
-        $users = User::with('roles')->get();
+        $users = User::with('userRole.role')->get();
         
         return view('admin.userrole.index', compact('users'));
     }

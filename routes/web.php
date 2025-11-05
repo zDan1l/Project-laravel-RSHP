@@ -14,17 +14,18 @@ use App\Http\Controllers\admin\UserRoleController;
 use App\Http\Controllers\admin\JenisHewanController;
 use App\Http\Controllers\admin\KategoriKlinisController;
 use App\Http\Controllers\admin\KodeTindakanTerapiController;
+use App\Http\Controllers\LandingController;
 
 
 Auth::routes();
 
-Route::get('/', [HomeController::class, 'home'])->name('home');
 // Route::get('/', [HomeController::class, 'home'])->name('home');
+Route::get('/', [LandingController::class, 'index'])->name('home');
 
-Route::get('/tentang-kami', [HomeController::class, 'tentang'])->name('tentang');
-Route::get('/layanan', [HomeController::class, 'layanan'])->name('layanan');
-Route::get('/struktur', [HomeController::class, 'struktur'])->name('struktur');
-Route::get('/kontak', [HomeController::class, 'kontak'])->name('kontak');
+Route::get('/tentang-kami', [LandingController::class, 'tentang'])->name('tentang');
+Route::get('/layanan', [LandingController::class, 'layanan'])->name('layanan');
+Route::get('/struktur', [LandingController::class, 'struktur'])->name('struktur');
+Route::get('/kontak', [LandingController::class, 'kontak'])->name('kontak');
 
 // Admin Routes
 Route::prefix('admin')->name('admin.')->group(function () {

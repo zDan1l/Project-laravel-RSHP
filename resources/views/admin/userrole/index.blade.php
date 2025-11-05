@@ -66,16 +66,16 @@
                                         </td>
                                         <td>
                                             <div class="d-flex flex-wrap gap-2">
-                                                @forelse($user->roles as $role)
+                                                @forelse($user->userRole as $userRole)
                                                     <div class="d-flex align-items-center bg-light rounded px-2 py-1">
-                                                        <span class="badge bg-{{ $role->pivot->status == 1 ? 'success' : 'warning' }} me-2">
-                                                            {{ $role->nama_role }}
+                                                        <span class="badge bg-{{ $userRole->status == 1 ? 'success' : 'warning' }} me-2">
+                                                            {{ $userRole->role->nama_role }}
                                                         </span>
                                                         <small class="text-muted me-2">
-                                                            {{ ucfirst($role->pivot->status  === 1 ? 'Aktif' : 'Tidak Aktif') }}
+                                                            {{ ucfirst($userRole->status == 1 ? 'Aktif' : 'Tidak Aktif') }}
                                                         </small>
                                                         <button class="btn btn-outline-danger btn-sm p-1" 
-                                                                onclick="removeRole({{ $user->iduser }}, {{ $role->idrole }})"
+                                                                onclick="removeRole({{ $user->iduser }}, {{ $userRole->idrole }})"
                                                                 title="Remove role">
                                                                 Hapus
                                                             <i class="fas fa-times" style="font-size: 0.7rem;"></i>
