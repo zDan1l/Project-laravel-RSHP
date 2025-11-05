@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
@@ -54,6 +55,9 @@ class LoginController extends Controller
         if ($userRole && $userRole->role) {
             $roleName = strtolower($userRole->role->nama_role ?? '');
             
+            // Debug: log role name
+            Log::info('User Role Name:', ['role' => $roleName, 'user_id' => $user->iduser]);
+            
             // Redirect based on role
             switch ($roleName) {
                 case 'admin':
@@ -82,7 +86,7 @@ class LoginController extends Controller
         }
         
         // Default redirect if no role found
-        return '/home';
+        return '/';
     }
 
     /**
@@ -144,14 +148,15 @@ class LoginController extends Controller
             'user_status' => $user->userRole[0]->status ?? 'active'
         ]);
         
-        return redirect()->intended('/admin/dashboard')->with('success', 'Login berhasil');
+        // Gunakan redirectTo() untuk multirole redirect
+        return redirect()->intended($this->redirectPath())->with('success', 'Login berhasil');
 
     }
 
     public function logout(Request $request){
         Auth::logout();
         
-        $request->session->invalidate();
+        $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return redirect('/')->with('success', 'Logout berhasil');
