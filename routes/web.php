@@ -25,9 +25,7 @@ Auth::routes();
 
 // Custom Logout Route (Override Laravel UI logout)
 Route::post('/logout', [LogoutController::class, 'logout'])->name('logout')->middleware('auth');
-
 Route::get('/', [LandingController::class, 'index'])->name('home');
-
 Route::get('/tentang-kami', [LandingController::class, 'tentang'])->name('tentang');
 Route::get('/layanan', [LandingController::class, 'layanan'])->name('layanan');
 Route::get('/struktur', [LandingController::class, 'struktur'])->name('struktur');
@@ -41,45 +39,68 @@ Route::prefix('admin')->name('admin.')->group(function () {
     })->name('dashboard');
     
     // Users Management
-    Route::get('/users', [UserController::class, 'index'])->name('user.index');
-    Route::get('/users/create', [UserController::class, 'create'])->name('user.create');
-    Route::post('/users', [UserController::class, 'store'])->name('user.store');
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+    Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
     
     Route::get('/users-roles', [UserRoleController::class, 'index'])->name('user-role.index');
     
-    Route::get('/roles', [RoleController::class, 'index'])->name('role.index');
-    Route::get('/roles/create', [RoleController::class, 'create'])->name('role.create');
-    Route::post('/roles', [RoleController::class, 'store'])->name('role.store');
+    Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
+    Route::get('/roles/create', [RoleController::class, 'create'])->name('roles.create');
+    Route::post('/roles', [RoleController::class, 'store'])->name('roles.store');
+    Route::get('/roles/{id}/edit', [RoleController::class, 'edit'])->name('roles.edit');
+    Route::put('/roles/{id}', [RoleController::class, 'update'])->name('roles.update');
+    Route::delete('/roles/{id}', [RoleController::class, 'destroy'])->name('roles.destroy');
     
     // Pet Management
     Route::get('/pemilik', [PemilikController::class, 'index'])->name('pemilik.index');
     Route::get('/pemilik/create', [PemilikController::class, 'create'])->name('pemilik.create');
     Route::post('/pemilik', [PemilikController::class, 'store'])->name('pemilik.store');
+    Route::get('/pemilik/{id}/edit', [PemilikController::class, 'edit'])->name('pemilik.edit');
+    Route::put('/pemilik/{id}', [PemilikController::class, 'update'])->name('pemilik.update');
+    Route::delete('/pemilik/{id}', [PemilikController::class, 'destroy'])->name('pemilik.destroy');
     
-    Route::get('/pets', [PetController::class, 'index'])->name('pet.index');
-    Route::get('/pets/create', [PetController::class, 'create'])->name('pet.create');
-    Route::post('/pets', [PetController::class, 'store'])->name('pet.store');
+    Route::get('/pets', [PetController::class, 'index'])->name('pets.index');
+    Route::get('/pets/create', [PetController::class, 'create'])->name('pets.create');
+    Route::post('/pets', [PetController::class, 'store'])->name('pets.store');
+    Route::get('/pets/{id}/edit', [PetController::class, 'edit'])->name('pets.edit');
+    Route::put('/pets/{id}', [PetController::class, 'update'])->name('pets.update');
+    Route::delete('/pets/{id}', [PetController::class, 'destroy'])->name('pets.destroy');
     
     Route::get('/jenis-hewan', [JenisHewanController::class, 'index'])->name('jenis-hewan.index');
     Route::get('/jenis-hewan/create', [JenisHewanController::class, 'create'])->name('jenis-hewan.create');
     Route::post('/jenis-hewan', [JenisHewanController::class, 'store'])->name('jenis-hewan.store');
+    Route::get('/jenis-hewan/{id}/edit', [JenisHewanController::class, 'edit'])->name('jenis-hewan.edit');
+    Route::put('/jenis-hewan/{id}', [JenisHewanController::class, 'update'])->name('jenis-hewan.update');
+    Route::delete('/jenis-hewan/{id}', [JenisHewanController::class, 'destroy'])->name('jenis-hewan.destroy');
     
     // Categories
     Route::get('/kategori', [KategoriController::class, 'index'])->name('kategori.index');
     Route::get('/kategori/create', [KategoriController::class, 'create'])->name('kategori.create');
     Route::post('/kategori', [KategoriController::class, 'store'])->name('kategori.store');
+    Route::get('/kategori/{id}/edit', [KategoriController::class, 'edit'])->name('kategori.edit');
+    Route::put('/kategori/{id}', [KategoriController::class, 'update'])->name('kategori.update');
+    Route::delete('/kategori/{id}', [KategoriController::class, 'destroy'])->name('kategori.destroy');
 
     // Clinical Categories
     Route::get('/kategori-klinis', [KategoriKlinisController::class, 'index'])->name('kategoriklinis.index');
     Route::get('/kategori-klinis/create', [KategoriKlinisController::class, 'create'])->name('kategoriklinis.create');
     Route::post('/kategori-klinis', [KategoriKlinisController::class, 'store'])->name('kategoriklinis.store');
+    Route::get('/kategori-klinis/{id}/edit', [KategoriKlinisController::class, 'edit'])->name('kategoriklinis.edit');
+    Route::put('/kategori-klinis/{id}', [KategoriKlinisController::class, 'update'])->name('kategoriklinis.update');
+    Route::delete('/kategori-klinis/{id}', [KategoriKlinisController::class, 'destroy'])->name('kategoriklinis.destroy');
 
     // Treatment Codes
     Route::get('/kode-tindakan', [KodeTindakanTerapiController::class, 'index'])->name('kodentindakan.index');
     Route::get('/kode-tindakan/create', [KodeTindakanTerapiController::class, 'create'])->name('kodentindakan.create');
     Route::post('/kode-tindakan', [KodeTindakanTerapiController::class, 'store'])->name('kodentindakan.store');
+    Route::get('/kode-tindakan/{id}/edit', [KodeTindakanTerapiController::class, 'edit'])->name('kodentindakan.edit');
+    Route::put('/kode-tindakan/{id}', [KodeTindakanTerapiController::class, 'update'])->name('kodentindakan.update');
+    Route::delete('/kode-tindakan/{id}', [KodeTindakanTerapiController::class, 'destroy'])->name('kodentindakan.destroy');
 });
-
 
 // resepsionis routes
 Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
@@ -127,7 +148,7 @@ Route::prefix('perawat')->name('perawat.')->group(function () {
     Route::delete('/tindakan-terapi/{id}', [App\Http\Controllers\perawat\PerawatTindakanController::class, 'destroy'])->name('tindakan-terapi.destroy');
 });
 
-// perawat router
+// dokter router
 Route::prefix('dokter')->name('dokter.')->group(function () {
     // Dashboard
     Route::get('/dashboard', function () {

@@ -8,7 +8,7 @@
                     <h4 class="mb-1">Kategori</h4>
                     <p class="text-muted mb-0">Daftar kategori</p>
                 </div>
-                <a href="#" class="btn btn-primary">Tambah Kategori</a>
+                <a href="{{ route('admin.kategori.create') }}" class="btn btn-primary">Tambah Kategori</a>
             </div>
         </div>
 

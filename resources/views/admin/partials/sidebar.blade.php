@@ -33,8 +33,8 @@
 
             <!-- Users Management -->
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.user.*') ? 'active' : '' }}" 
-                   href="{{ route('admin.user.index') }}">
+                <a class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" 
+                   href="{{ route('admin.users.index') }}">
                     <i class="fas fa-users"></i>
                     <span>Users</span>
                 </a>
@@ -42,8 +42,8 @@
 
             <!-- Roles Management -->
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.role.*') ? 'active' : '' }}" 
-                   href="{{ route('admin.role.index') }}">
+                <a class="nav-link {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}" 
+                   href="{{ route('admin.roles.index') }}">
                     <i class="fas fa-user-tag"></i>
                     <span>Roles</span>
                 </a>
@@ -81,8 +81,8 @@
 
             <!-- Pet -->
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('admin.pet.*') ? 'active' : '' }}" 
-                   href="{{ route('admin.pet.index') }}">
+                <a class="nav-link {{ request()->routeIs('admin.pets.*') ? 'active' : '' }}" 
+                   href="{{ route('admin.pets.index') }}">
                     <i class="fas fa-paw"></i>
                     <span>Pet</span>
                 </a>

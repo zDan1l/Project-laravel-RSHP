@@ -8,7 +8,7 @@
                     <h4 class="mb-1">Kode Tindakan</h4>
                     <p class="text-muted mb-0">Daftar kode tindakan terapi</p>
                 </div>
-                <a href="#" class="btn btn-primary">Tambah Kode</a>
+                <a href="{{ route('admin.kodentindakan.create') }}" class="btn btn-primary">Tambah Kode</a>
             </div>
         </div>
 

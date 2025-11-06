@@ -47,4 +47,64 @@ class KategoriController extends Controller
                 ->with('error', 'Gagal menambahkan kategori: ' . $e->getMessage());
         }
     }
+
+    public function edit($id)
+    {
+        $item = Kategori::findOrFail($id);
+        return view('admin.kategori.edit', compact('item'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $item = Kategori::findOrFail($id);
+
+        $validated = $request->validate([
+            'nama_kategori' => 'required|string|max:100',
+        ], [
+            'nama_kategori.required' => 'Nama kategori harus diisi',
+            'nama_kategori.max' => 'Nama kategori maksimal 100 karakter',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $item->update($validated);
+
+            DB::commit();
+
+            return redirect()
+                ->route('admin.kategori.index')
+                ->with('success', 'Kategori berhasil diupdate');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Gagal mengupdate kategori: ' . $e->getMessage());
+        }
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $item = Kategori::findOrFail($id);
+            
+            // Check if being used
+            if ($item->kodeTindakanTerapi()->exists()) {
+                return redirect()
+                    ->back()
+                    ->with('error', 'Kategori tidak dapat dihapus karena sedang digunakan');
+            }
+
+            $item->delete();
+
+            return redirect()
+                ->route('admin.kategori.index')
+                ->with('success', 'Kategori berhasil dihapus');
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal menghapus kategori: ' . $e->getMessage());
+        }
+    }
 }

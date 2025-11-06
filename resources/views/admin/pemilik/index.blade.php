@@ -11,7 +11,7 @@
                     <p class="text-muted mb-0">Manage system pemilik and their permissions</p>
                 </div>
                 <div>
-                    <a href="" class="btn btn-primary">
+                    <a href="{{ route('admin.pemilik.create') }}" class="btn btn-primary">
                         <i class="fas fa-plus me-2"></i>Add New Pemilik
                     </a>
                 </div>

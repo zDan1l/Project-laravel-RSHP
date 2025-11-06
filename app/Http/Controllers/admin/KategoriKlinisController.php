@@ -47,4 +47,64 @@ class KategoriKlinisController extends Controller
                 ->with('error', 'Gagal menambahkan kategori klinis: ' . $e->getMessage());
         }
     }
+
+    public function edit($id)
+    {
+        $item = KategoriKlinis::findOrFail($id);
+        return view('admin.kategoriklinis.edit', compact('item'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $item = KategoriKlinis::findOrFail($id);
+
+        $validated = $request->validate([
+            'nama_kategori_klinis' => 'required|string|max:100',
+        ], [
+            'nama_kategori_klinis.required' => 'Nama kategori klinis harus diisi',
+            'nama_kategori_klinis.max' => 'Nama kategori klinis maksimal 100 karakter',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $item->update($validated);
+
+            DB::commit();
+
+            return redirect()
+                ->route('admin.kategoriklinis.index')
+                ->with('success', 'Kategori klinis berhasil diupdate');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Gagal mengupdate kategori klinis: ' . $e->getMessage());
+        }
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $item = KategoriKlinis::findOrFail($id);
+            
+            // Check if being used
+            if ($item->kodeTindakanTerapi()->exists()) {
+                return redirect()
+                    ->back()
+                    ->with('error', 'Kategori klinis tidak dapat dihapus karena sedang digunakan');
+            }
+
+            $item->delete();
+
+            return redirect()
+                ->route('admin.kategoriklinis.index')
+                ->with('success', 'Kategori klinis berhasil dihapus');
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal menghapus kategori klinis: ' . $e->getMessage());
+        }
+    }
 }

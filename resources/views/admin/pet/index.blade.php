@@ -15,7 +15,7 @@
                     <p class="text-muted mb-0">Manage all registered pets in the system</p>
                 </div>
                 <div>
-                    <a href="" class="btn btn-primary">
+                    <a href="{{ route('admin.pets.create') }}" class="btn btn-primary">
                         <i class="fas fa-plus me-2"></i>Register New Pet
                     </a>
                 </div>
