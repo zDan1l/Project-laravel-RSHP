@@ -32,7 +32,7 @@
             <!-- Pet Management -->
             <li class="nav-item">
                 <div class="nav-section-title" style="color: #9ca3af; font-size: 0.75rem; padding: 0.5rem 1rem; text-transform: uppercase; font-weight: 600;">
-                    <span>Pet Management</span>
+                    <span>Registrasi</span>
                 </div>
             </li>
 
@@ -54,15 +54,6 @@
                 </a>
             </li>
 
-            <!-- Jenis Hewan -->
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('resepsionis.jenis-hewan.*') ? 'active' : '' }}" 
-                   href="{{ route('resepsionis.jenis-hewan.index') }}">
-                    <i class="fas fa-dog"></i>
-                    <span>Jenis Hewan</span>
-                </a>
-            </li>
-
             <!-- Divider -->
             <li class="nav-item">
                 <hr class="sidebar-divider" style="border-color: #374151; margin: 0.5rem 1rem;">
@@ -71,47 +62,22 @@
             <!-- Clinical Data -->
             <li class="nav-item">
                 <div class="nav-section-title" style="color: #9ca3af; font-size: 0.75rem; padding: 0.5rem 1rem; text-transform: uppercase; font-weight: 600;">
-                    <span>Clinical Data</span>
+                    <span>Jadwal Pertemuan</span>
                 </div>
-            </li>
-
-            <!-- Kategori -->
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('resepsionis.kategori.*') ? 'active' : '' }}" 
-                   href="{{ route('resepsionis.kategori.index') }}">
-                    <i class="fas fa-tags"></i>
-                    <span>Kategori</span>
-                </a>
-            </li>
-
-            <!-- Kategori Klinis -->
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('resepsionis.kategoriklinis.*') ? 'active' : '' }}" 
-                   href="{{ route('resepsionis.kategoriklinis.index') }}">
-                    <i class="fas fa-stethoscope"></i>
-                    <span>Kategori Klinis</span>
-                </a>
             </li>
 
             <!-- Kode Tindakan Terapi -->
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('resepsionis.kodentindakan.*') ? 'active' : '' }}" 
-                   href="{{ route('resepsionis.kodentindakan.index') }}">
-                    <i class="fas fa-code"></i>
-                    <span>Kode Tindakan</span>
+                <a class="nav-link {{ request()->routeIs('resepsionis.temu-dokter.*') ? 'active' : '' }}" 
+                   href="{{ route('resepsionis.temu-dokter.index') }}">
+                    <i class="fas fa-stethoscope"></i>
+                    <span>Temu Dokter</span>
                 </a>
             </li>
 
             <!-- Divider -->
             <li class="nav-item">
                 <hr class="sidebar-divider" style="border-color: #374151; margin: 0.5rem 1rem;">
-            </li>
-
-            <!-- System -->
-            <li class="nav-item">
-                <div class="nav-section-title" style="color: #9ca3af; font-size: 0.75rem; padding: 0.5rem 1rem; text-transform: uppercase; font-weight: 600;">
-                    <span>System</span>
-                </div>
             </li>
 
         </ul>
