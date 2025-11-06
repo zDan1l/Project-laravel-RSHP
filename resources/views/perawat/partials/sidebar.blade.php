@@ -1,7 +1,7 @@
 <div class="sidebar" id="sidebar">
     <!-- Sidebar Header -->
     <div class="sidebar-header">
-        <a href="{{ route('resepsionis.dashboard') }}" class="logo d-flex align-items-center">
+        <a href="{{ route('perawat.dashboard') }}" class="logo d-flex align-items-center">
             <i class="fas fa-paw me-2"></i>
             <span class="logo-text">RSHP Perawat</span>
         </a>
@@ -12,8 +12,8 @@
         <ul class="nav flex-column">
             <!-- Dashboard -->
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('resepsionis.dashboard') ? 'active' : '' }}" 
-                   href="{{ route('resepsionis.dashboard') }}">
+                <a class="nav-link {{ request()->routeIs('perawat.dashboard') ? 'active' : '' }}" 
+                   href="{{ route('perawat.dashboard') }}">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>Dashboard</span>
                 </a>
@@ -38,8 +38,8 @@
 
             <!-- Pemilik -->
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('resepsionis.pemilik.*') ? 'active' : '' }}" 
-                   href="{{ route('resepsionis.pemilik.index') }}">
+                <a class="nav-link {{ request()->routeIs('perawat.rekam-medis.*') ? 'active' : '' }}" 
+                   href="{{ route('perawat.rekam-medis.index') }}">
                     <i class="fas fa-user"></i>
                     <span>Rekam Medis</span>
                 </a>
@@ -47,8 +47,8 @@
 
             <!-- Pet -->
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('resepsionis.pet.*') ? 'active' : '' }}" 
-                   href="{{ route('resepsionis.pet.index') }}">
+                <a class="nav-link {{ request()->routeIs('perawat.tindakan-terapi.*') ? 'active' : '' }}" 
+                   href="{{ route('perawat.tindakan-terapi.index') }}">
                     <i class="fas fa-paw"></i>
                     <span>Tindakan Terapi</span>
                 </a>
@@ -57,13 +57,6 @@
             <!-- Divider -->
             <li class="nav-item">
                 <hr class="sidebar-divider" style="border-color: #374151; margin: 0.5rem 1rem;">
-            </li>
-
-            <!-- System -->
-            <li class="nav-item">
-                <div class="nav-section-title" style="color: #9ca3af; font-size: 0.75rem; padding: 0.5rem 1rem; text-transform: uppercase; font-weight: 600;">
-                    <span>System</span>
-                </div>
             </li>
 
         </ul>

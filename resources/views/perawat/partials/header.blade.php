@@ -15,7 +15,7 @@
                     <i class="fas fa-user"></i>
                 </div>
                 <span class="ms-2 d-none d-md-inline">
-                    {{ Auth::user()->name ?? 'Resepsionis User' }}
+                    {{ Auth::user()->name ?? 'Perawat User' }}
                 </span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end shadow">
