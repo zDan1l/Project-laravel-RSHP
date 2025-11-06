@@ -3,6 +3,8 @@
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\LogoutController;
+use App\Http\Controllers\LandingController;
 use App\Http\Controllers\admin\PetController;
 use App\Http\Controllers\admin\RoleController;
 use App\Http\Controllers\admin\UserController;
@@ -11,12 +13,13 @@ use App\Http\Controllers\admin\KategoriController;
 use App\Http\Controllers\admin\UserRoleController;
 use App\Http\Controllers\admin\JenisHewanController;
 use App\Http\Controllers\admin\KategoriKlinisController;
+use App\Http\Controllers\perawat\PerawatTindakanController;
 use App\Http\Controllers\admin\KodeTindakanTerapiController;
-use App\Http\Controllers\LandingController;
-use App\Http\Controllers\LogoutController;
-use App\Http\Controllers\resepsionis\ResepsionisPemilikController;
+use App\Http\Controllers\dokter\DokterRekamMedisController;
+use App\Http\Controllers\perawat\PerawatRekamMedisController;
 use App\Http\Controllers\resepsionis\ResepsionisPetController;
 use App\Http\Controllers\resepsionis\ResepsionisTemuController;
+use App\Http\Controllers\resepsionis\ResepsionisPemilikController;
 
 Auth::routes();
 
@@ -107,6 +110,24 @@ Route::prefix('perawat')->name('perawat.')->group(function () {
     Route::get('/tindakan-terapi/{id}/edit', [App\Http\Controllers\perawat\PerawatTindakanController::class, 'edit'])->name('tindakan-terapi.edit');
     Route::put('/tindakan-terapi/{id}', [App\Http\Controllers\perawat\PerawatTindakanController::class, 'update'])->name('tindakan-terapi.update');
     Route::delete('/tindakan-terapi/{id}', [App\Http\Controllers\perawat\PerawatTindakanController::class, 'destroy'])->name('tindakan-terapi.destroy');
+});
+
+// perawat router
+Route::prefix('dokter')->name('dokter.')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', function () {
+        return view('dokter.dashboard.index');
+    })->name('dashboard');
+    
+    // Rekam Medis
+    Route::get('/rekam-medis', [DokterRekamMedisController::class, 'index'])->name('rekam-medis.index');
+    Route::get('/rekam-medis/{id}', [DokterRekamMedisController::class, 'show'])->name('rekam-medis.show');
+    
+    // Detail Rekam Medis (Tindakan Terapi)
+    Route::post('/rekam-medis/{id}/detail', [DokterRekamMedisController::class, 'storeDetail'])->name('rekam-medis.detail.store');
+    Route::put('/rekam-medis/{id}/detail/{idDetail}', [DokterRekamMedisController::class, 'updateDetail'])->name('rekam-medis.detail.update');
+    Route::delete('/rekam-medis/{id}/detail/{idDetail}', [DokterRekamMedisController::class, 'deleteDetail'])->name('rekam-medis.detail.delete');
+    
 });
 
 

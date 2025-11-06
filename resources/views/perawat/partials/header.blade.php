@@ -21,8 +21,8 @@
             <ul class="dropdown-menu dropdown-menu-end shadow">
                 <li>
                     <div class="dropdown-item-text">
-                        <div class="fw-bold">{{ Auth::user()->name ?? 'Resepsionis User' }}</div>
-                        <div class="small text-muted">{{ Auth::user()->email ?? 'resepsionis@rshp.com' }}</div>
+                        <div class="fw-bold">{{ Auth::user()->name ?? 'Perawat User' }}</div>
+                        <div class="small text-muted">{{ Auth::user()->email ?? 'perawat@rshp.com' }}</div>
                     </div>
                 </li>
                 <li><hr class="dropdown-divider"></li>

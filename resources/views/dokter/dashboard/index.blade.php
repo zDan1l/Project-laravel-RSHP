@@ -1,4 +1,4 @@
-@extends('layouts.resepsionis')
+@extends('layouts.dokter')
 
 @section('title', 'Dashboard')
 
@@ -13,7 +13,7 @@
                 <div class="card-body">
                     <div class="row align-items-center">
                         <div class="col-md-8">
-                            <h3 class="mb-1">Selamat Datang di RSHP Resepsionis Dashboard!</h3>
+                            <h3 class="mb-1">Selamat Datang di RSHP Dokter Dashboard!</h3>
                             <p class="mb-0 opacity-75">Kelola data rumah sakit hewan dan pantau aktivitas sistem dari sini.</p>
                         </div>
                         <div class="col-md-4 text-end d-none d-md-block">

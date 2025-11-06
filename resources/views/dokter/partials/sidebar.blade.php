@@ -1,9 +1,9 @@
 <div class="sidebar" id="sidebar">
     <!-- Sidebar Header -->
     <div class="sidebar-header">
-        <a href="{{ route('resepsionis.dashboard') }}" class="logo d-flex align-items-center">
+        <a href="{{ route('dokter.dashboard') }}" class="logo d-flex align-items-center">
             <i class="fas fa-paw me-2"></i>
-            <span class="logo-text">RSHP Resepsionis</span>
+            <span class="logo-text">RSHP Dokter</span>
         </a>
     </div>
 
@@ -12,8 +12,8 @@
         <ul class="nav flex-column">
             <!-- Dashboard -->
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('resepsionis.dashboard') ? 'active' : '' }}" 
-                   href="{{ route('resepsionis.dashboard') }}">
+                <a class="nav-link {{ request()->routeIs('dokter.dashboard') ? 'active' : '' }}" 
+                   href="{{ route('dokter.dashboard') }}">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>Dashboard</span>
                 </a>
@@ -32,86 +32,21 @@
             <!-- Pet Management -->
             <li class="nav-item">
                 <div class="nav-section-title" style="color: #9ca3af; font-size: 0.75rem; padding: 0.5rem 1rem; text-transform: uppercase; font-weight: 600;">
-                    <span>Pet Management</span>
+                    <span>Medis</span>
                 </div>
             </li>
 
-            <!-- Pemilik -->
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('resepsionis.pemilik.*') ? 'active' : '' }}" 
-                   href="{{ route('resepsionis.pemilik.index') }}">
+                <a class="nav-link {{ request()->routeIs('dokter.rekam-medis.*') ? 'active' : '' }}" 
+                   href="{{ route('dokter.rekam-medis.index') }}">
                     <i class="fas fa-user"></i>
-                    <span>Pemilik</span>
-                </a>
-            </li>
-
-            <!-- Pet -->
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('resepsionis.pet.*') ? 'active' : '' }}" 
-                   href="{{ route('resepsionis.pet.index') }}">
-                    <i class="fas fa-paw"></i>
-                    <span>Pet</span>
-                </a>
-            </li>
-
-            <!-- Jenis Hewan -->
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('resepsionis.jenis-hewan.*') ? 'active' : '' }}" 
-                   href="{{ route('resepsionis.jenis-hewan.index') }}">
-                    <i class="fas fa-dog"></i>
-                    <span>Jenis Hewan</span>
+                    <span>Rekam Medis</span>
                 </a>
             </li>
 
             <!-- Divider -->
             <li class="nav-item">
                 <hr class="sidebar-divider" style="border-color: #374151; margin: 0.5rem 1rem;">
-            </li>
-
-            <!-- Clinical Data -->
-            <li class="nav-item">
-                <div class="nav-section-title" style="color: #9ca3af; font-size: 0.75rem; padding: 0.5rem 1rem; text-transform: uppercase; font-weight: 600;">
-                    <span>Clinical Data</span>
-                </div>
-            </li>
-
-            <!-- Kategori -->
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('resepsionis.kategori.*') ? 'active' : '' }}" 
-                   href="{{ route('resepsionis.kategori.index') }}">
-                    <i class="fas fa-tags"></i>
-                    <span>Kategori</span>
-                </a>
-            </li>
-
-            <!-- Kategori Klinis -->
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('resepsionis.kategoriklinis.*') ? 'active' : '' }}" 
-                   href="{{ route('resepsionis.kategoriklinis.index') }}">
-                    <i class="fas fa-stethoscope"></i>
-                    <span>Kategori Klinis</span>
-                </a>
-            </li>
-
-            <!-- Kode Tindakan Terapi -->
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('resepsionis.kodentindakan.*') ? 'active' : '' }}" 
-                   href="{{ route('resepsionis.kodentindakan.index') }}">
-                    <i class="fas fa-code"></i>
-                    <span>Kode Tindakan</span>
-                </a>
-            </li>
-
-            <!-- Divider -->
-            <li class="nav-item">
-                <hr class="sidebar-divider" style="border-color: #374151; margin: 0.5rem 1rem;">
-            </li>
-
-            <!-- System -->
-            <li class="nav-item">
-                <div class="nav-section-title" style="color: #9ca3af; font-size: 0.75rem; padding: 0.5rem 1rem; text-transform: uppercase; font-weight: 600;">
-                    <span>System</span>
-                </div>
             </li>
 
         </ul>

@@ -12,8 +12,8 @@
         <ul class="nav flex-column">
             <!-- Dashboard -->
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('perawat.dashboard') ? 'active' : '' }}" 
-                   href="{{ route('perawat.dashboard') }}">
+                <a class="nav-link {{ request()->routeIs('resepsionis.dashboard') ? 'active' : '' }}" 
+                   href="{{ route('resepsionis.dashboard') }}">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>Dashboard</span>
                 </a>
@@ -38,8 +38,8 @@
 
             <!-- Pemilik -->
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('perawat.pemilik.*') ? 'active' : '' }}" 
-                   href="{{ route('perawat.pemilik.index') }}">
+                <a class="nav-link {{ request()->routeIs('resepsionis.pemilik.*') ? 'active' : '' }}" 
+                   href="{{ route('resepsionis.pemilik.index') }}">
                     <i class="fas fa-user"></i>
                     <span>Rekam Medis</span>
                 </a>
@@ -59,8 +59,8 @@
 
             <!-- Kode Tindakan Terapi -->
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('perawat.temu-dokter.*') ? 'active' : '' }}" 
-                   href="{{ route('perawat.temu-dokter.index') }}">
+                <a class="nav-link {{ request()->routeIs('resepsionis.temu-dokter.*') ? 'active' : '' }}" 
+                   href="{{ route('resepsionis.temu-dokter.index') }}">
                     <i class="fas fa-stethoscope"></i>
                     <span>Tindakan Terapi</span>
                 </a>

@@ -15,14 +15,14 @@
                     <i class="fas fa-user"></i>
                 </div>
                 <span class="ms-2 d-none d-md-inline">
-                    {{ Auth::user()->name ?? 'Resepsionis User' }}
+                    {{ Auth::user()->name ?? 'Dokter User' }}
                 </span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end shadow">
                 <li>
                     <div class="dropdown-item-text">
-                        <div class="fw-bold">{{ Auth::user()->name ?? 'Resepsionis User' }}</div>
-                        <div class="small text-muted">{{ Auth::user()->email ?? 'resepsionis@rshp.com' }}</div>
+                        <div class="fw-bold">{{ Auth::user()->name ?? 'Dokter User' }}</div>
+                        <div class="small text-muted">{{ Auth::user()->email ?? 'dokter@rshp.com' }}</div>
                     </div>
                 </li>
                 <li><hr class="dropdown-divider"></li>
