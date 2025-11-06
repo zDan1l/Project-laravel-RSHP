@@ -42,27 +42,42 @@ Route::prefix('admin')->name('admin.')->group(function () {
     
     // Users Management
     Route::get('/users', [UserController::class, 'index'])->name('user.index');
+    Route::get('/users/create', [UserController::class, 'create'])->name('user.create');
+    Route::post('/users', [UserController::class, 'store'])->name('user.store');
+    
     Route::get('/users-roles', [UserRoleController::class, 'index'])->name('user-role.index');
+    
     Route::get('/roles', [RoleController::class, 'index'])->name('role.index');
+    Route::get('/roles/create', [RoleController::class, 'create'])->name('role.create');
+    Route::post('/roles', [RoleController::class, 'store'])->name('role.store');
     
     // Pet Management
     Route::get('/pemilik', [PemilikController::class, 'index'])->name('pemilik.index');
+    Route::get('/pemilik/create', [PemilikController::class, 'create'])->name('pemilik.create');
+    Route::post('/pemilik', [PemilikController::class, 'store'])->name('pemilik.store');
+    
     Route::get('/pets', [PetController::class, 'index'])->name('pet.index');
+    Route::get('/pets/create', [PetController::class, 'create'])->name('pet.create');
+    Route::post('/pets', [PetController::class, 'store'])->name('pet.store');
+    
     Route::get('/jenis-hewan', [JenisHewanController::class, 'index'])->name('jenis-hewan.index');
-    
-    
+    Route::get('/jenis-hewan/create', [JenisHewanController::class, 'create'])->name('jenis-hewan.create');
+    Route::post('/jenis-hewan', [JenisHewanController::class, 'store'])->name('jenis-hewan.store');
     
     // Categories
     Route::get('/kategori', [KategoriController::class, 'index'])->name('kategori.index');
     Route::get('/kategori/create', [KategoriController::class, 'create'])->name('kategori.create');
+    Route::post('/kategori', [KategoriController::class, 'store'])->name('kategori.store');
 
     // Clinical Categories
     Route::get('/kategori-klinis', [KategoriKlinisController::class, 'index'])->name('kategoriklinis.index');
     Route::get('/kategori-klinis/create', [KategoriKlinisController::class, 'create'])->name('kategoriklinis.create');
+    Route::post('/kategori-klinis', [KategoriKlinisController::class, 'store'])->name('kategoriklinis.store');
 
     // Treatment Codes
     Route::get('/kode-tindakan', [KodeTindakanTerapiController::class, 'index'])->name('kodentindakan.index');
     Route::get('/kode-tindakan/create', [KodeTindakanTerapiController::class, 'create'])->name('kodentindakan.create');
+    Route::post('/kode-tindakan', [KodeTindakanTerapiController::class, 'store'])->name('kodentindakan.store');
 });
 
 
