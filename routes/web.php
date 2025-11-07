@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LogoutController;
@@ -13,10 +12,8 @@ use App\Http\Controllers\admin\KategoriController;
 use App\Http\Controllers\admin\UserRoleController;
 use App\Http\Controllers\admin\JenisHewanController;
 use App\Http\Controllers\admin\KategoriKlinisController;
-use App\Http\Controllers\perawat\PerawatTindakanController;
 use App\Http\Controllers\admin\KodeTindakanTerapiController;
 use App\Http\Controllers\dokter\DokterRekamMedisController;
-use App\Http\Controllers\perawat\PerawatRekamMedisController;
 use App\Http\Controllers\resepsionis\ResepsionisPetController;
 use App\Http\Controllers\resepsionis\ResepsionisTemuController;
 use App\Http\Controllers\resepsionis\ResepsionisPemilikController;
@@ -32,7 +29,7 @@ Route::get('/struktur', [LandingController::class, 'struktur'])->name('struktur'
 Route::get('/kontak', [LandingController::class, 'kontak'])->name('kontak');
 
 // Admin Routes
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'isAdministrator'])->group(function () {
     // Dashboard
     Route::get('/dashboard', function () {
         return view('admin.dashboard.index');
@@ -103,7 +100,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 });
 
 // resepsionis routes
-Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
+Route::prefix('resepsionis')->name('resepsionis.')->middleware(['auth', 'isResepsionis'])->group(function () {
     // Dashboard
     Route::get('/dashboard', function () {
         return view('resepsionis.dashboard.index');
@@ -123,7 +120,7 @@ Route::prefix('resepsionis')->name('resepsionis.')->group(function () {
 });
 
 // perawat router
-Route::prefix('perawat')->name('perawat.')->group(function () {
+Route::prefix('perawat')->name('perawat.')->middleware(['auth', 'isPerawat'])->group(function () {
     // Dashboard
     Route::get('/dashboard', function () {
         return view('perawat.dashboard.index');
@@ -149,7 +146,7 @@ Route::prefix('perawat')->name('perawat.')->group(function () {
 });
 
 // dokter router
-Route::prefix('dokter')->name('dokter.')->group(function () {
+Route::prefix('dokter')->name('dokter.')->middleware(['auth', 'isDokter'])->group(function () {
     // Dashboard
     Route::get('/dashboard', function () {
         return view('dokter.dashboard.index');
