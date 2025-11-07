@@ -13,6 +13,8 @@ class UserRole extends Pivot
 {
     protected $table = 'role_user';
     protected $guarded = [];
+    public $timestamps = false;
+
     
     /**
      * Relasi ke User

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\JenisHewan;
+use App\Helpers\StringHelper;
+use App\Helpers\ValidationHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -27,10 +29,23 @@ class JenisHewanController extends Controller
             'nama_jenis.max' => 'Nama jenis hewan maksimal 100 karakter',
         ]);
 
+        // Additional validation using helper
+        $validationResult = ValidationHelper::validateNamaJenisHewan($validated['nama_jenis']);
+        if (!$validationResult['valid']) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', $validationResult['message']);
+        }
+
         try {
             DB::beginTransaction();
 
-            JenisHewan::create($validated);
+            // Format nama jenis hewan sebelum menyimpan
+            $validated['nama_jenis'] = $this->formatNamaJenisHewan($validated['nama_jenis']);
+
+            // Create using private function
+            $jenisHewan = $this->createJenisHewan($validated);
 
             DB::commit();
 
@@ -63,8 +78,20 @@ class JenisHewanController extends Controller
             'nama_jenis.max' => 'Nama jenis hewan maksimal 100 karakter',
         ]);
 
+        // Additional validation using helper
+        $validationResult = ValidationHelper::validateNamaJenisHewan($validated['nama_jenis']);
+        if (!$validationResult['valid']) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', $validationResult['message']);
+        }
+
         try {
             DB::beginTransaction();
+
+            // Format nama jenis hewan sebelum update
+            $validated['nama_jenis'] = $this->formatNamaJenisHewan($validated['nama_jenis']);
 
             $item->update($validated);
 
@@ -104,5 +131,33 @@ class JenisHewanController extends Controller
                 ->back()
                 ->with('error', 'Gagal menghapus jenis hewan: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Private function untuk membuat jenis hewan baru
+     * 
+     * @param array $data
+     * @return JenisHewan
+     */
+    private function createJenisHewan(array $data)
+    {
+        // Sanitize data sebelum create
+        $sanitizedData = ValidationHelper::sanitizeInput($data);
+        
+        // Create dan return model
+        return JenisHewan::create($sanitizedData);
+    }
+
+    /**
+     * Private function untuk format nama jenis hewan
+     * Menggunakan helper StringHelper
+     * 
+     * @param string $namaJenis
+     * @return string
+     */
+    private function formatNamaJenisHewan($namaJenis)
+    {
+        // Gunakan helper untuk format
+        return StringHelper::formatNamaJenisHewan($namaJenis);
     }
 }

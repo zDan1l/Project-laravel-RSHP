@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Role;
 use App\Models\UserRole;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UserRoleController extends Controller
 {
@@ -22,117 +23,141 @@ class UserRoleController extends Controller
     }
 
     /**
-     * Show specific user with their roles and pivot data
+     * Show form to assign role to user
      */
-    public function show($userId)
+    public function create()
     {
-        $user = User::with('roles')->findOrFail($userId);
+        // Get users without active role or all users
+        $users = User::all();
+        $roles = Role::all();
         
-        return view('admin.userrole.show', compact('user'));
+        return view('admin.userrole.create', compact('users', 'roles'));
     }
 
     /**
-     * Attach role to user dengan data pivot
+     * Store new role assignment (only 1 active role per user)
      */
-    public function attachRole(Request $request)
+    public function store(Request $request)
     {
-        $user = User::findOrFail($request->user_id);
-        
-        // Attach role dengan data pivot
-        $user->roles()->attach($request->role_id, [
-            'status' => $request->status ?? 'active',
-            'created_at' => now(),
-            'updated_at' => now()
+        $validated = $request->validate([
+            'iduser' => 'required|exists:user,iduser',
+            'idrole' => 'required|exists:role,idrole',
+        ], [
+            'iduser.required' => 'User harus dipilih',
+            'iduser.exists' => 'User tidak valid',
+            'idrole.required' => 'Role harus dipilih',
+            'idrole.exists' => 'Role tidak valid',
         ]);
-        
-        return redirect()->back()->with('success', 'Role berhasil ditambahkan!');
-    }
 
-    /**
-     * Update pivot data
-     */
-    public function updatePivot(Request $request)
-    {
-        $user = User::findOrFail($request->user_id);
-        
-        // Update data pivot
-        $user->roles()->updateExistingPivot($request->role_id, [
-            'status' => $request->status,
-            'updated_at' => now()
-        ]);
-        
-        return redirect()->back()->with('success', 'Status role berhasil diupdate!');
-    }
+        try {
+            DB::beginTransaction();
 
-    /**
-     * Detach role from user
-     */
-    public function detachRole(Request $request)
-    {
-        $user = User::findOrFail($request->user_id);
-        
-        // Detach specific role
-        $user->roles()->detach($request->role_id);
-        
-        return redirect()->back()->with('success', 'Role berhasil dihapus!');
-    }
+            // Set all existing roles for this user to inactive (status = 0)
+            UserRole::where('iduser', $validated['iduser'])
+                    ->update(['status' => 0]);
 
-    /**
-     * Sync roles with user (replace all existing roles)
-     */
-    public function syncRoles(Request $request)
-    {
-        $user = User::findOrFail($request->user_id);
-        
-        // Sync roles dengan data pivot
-        $roleData = [];
-        foreach ($request->roles as $roleId) {
-            $roleData[$roleId] = [
-                'status' => 'active',
-                'created_at' => now(),
-                'updated_at' => now()
-            ];
+            // Check if this role already exists for the user
+            $existingRole = UserRole::where('iduser', $validated['iduser'])
+                                   ->where('idrole', $validated['idrole'])
+                                   ->first();
+
+            if ($existingRole) {
+                // Just activate the existing role
+                $existingRole->update(['status' => 1]);
+            } else {
+                // Create new role assignment as active
+                UserRole::create([
+                    'iduser' => $validated['iduser'],
+                    'idrole' => $validated['idrole'],
+                    'status' => 1, // Active
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()
+                ->route('admin.user-role.index')
+                ->with('success', 'Role berhasil ditambahkan dan diaktifkan');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', 'Gagal menambahkan role: ' . $e->getMessage());
         }
-        
-        $user->roles()->sync($roleData);
-        
-        return redirect()->back()->with('success', 'Roles berhasil disync!');
     }
 
     /**
-     * Query examples untuk berbagai kebutuhan
+     * Activate a specific role (deactivate others)
      */
-    public function queryExamples()
+    public function activate($iduser, $idrole)
     {
-        // 1. Ambil semua user yang memiliki role tertentu
-        $admins = User::whereHas('roles', function($query) {
-            $query->where('name', 'Admin');
-        })->get();
+        try {
+            DB::beginTransaction();
 
-        // 2. Ambil user dengan role dan filter berdasarkan status pivot
-        $activeUsers = User::whereHas('roles', function($query) {
-            $query->wherePivot('status', 'active');
-        })->with(['roles' => function($query) {
-            $query->wherePivot('status', 'active');
-        }])->get();
+            // Deactivate all roles for this user
+            UserRole::where('iduser', $iduser)
+                    ->update(['status' => 0]);
 
-        // 3. Count berapa banyak user per role
-        $roleCounts = Role::withCount('users')->get();
+            // Activate selected role
+            $userRole = UserRole::where('iduser', $iduser)
+                               ->where('idrole', $idrole)
+                               ->first();
 
-        // 4. Ambil data pivot dengan kondisi tertentu
-        $specificPivotData = UserRole::where('status', 'active')
-                                   ->with(['user', 'role'])
-                                   ->get();
+            if (!$userRole) {
+                throw new \Exception('Role tidak ditemukan untuk user ini');
+            }
 
-        // 5. User dengan multiple roles
-        $usersWithMultipleRoles = User::has('roles', '>', 1)->get();
+            $userRole->update(['status' => 1]);
 
-        return response()->json([
-            'admins' => $admins,
-            'activeUsers' => $activeUsers,
-            'roleCounts' => $roleCounts,
-            'specificPivotData' => $specificPivotData,
-            'usersWithMultipleRoles' => $usersWithMultipleRoles
-        ]);
+            DB::commit();
+
+            return redirect()
+                ->back()
+                ->with('success', 'Role berhasil diaktifkan');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal mengaktifkan role: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Remove role from user
+     */
+    public function destroy($iduser, $idrole)
+    {
+        try {
+            $userRole = UserRole::where('iduser', $iduser)
+                               ->where('idrole', $idrole)
+                               ->first();
+            // dd($userRole);
+            if (!$userRole) {
+                throw new \Exception('Role tidak ditemukan');
+            }
+
+            // Check if this is the only active role
+            $activeRolesCount = UserRole::where('iduser', $iduser)
+                                       ->where('status', 1)
+                                       ->count();
+            // dd($activeRolesCount);
+
+            if ($activeRolesCount == 1 && $userRole->status == 1) {
+                return redirect()
+                    ->back()
+                    ->with('error', 'Tidak dapat menghapus role aktif terakhir. User harus memiliki minimal 1 role aktif.');
+            }
+
+            $userRole->delete();
+
+            return redirect()
+                ->back()
+                ->with('success', 'Role berhasil dihapus');
+        } catch (\Exception $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal menghapus role: ' . $e->getMessage());
+        }
     }
 }

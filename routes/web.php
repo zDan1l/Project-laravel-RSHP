@@ -44,6 +44,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'isAdministrator'])-
     Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
     
     Route::get('/users-roles', [UserRoleController::class, 'index'])->name('user-role.index');
+    Route::get('/users-roles/create', [UserRoleController::class, 'create'])->name('user-role.create');
+    Route::post('/users-roles', [UserRoleController::class, 'store'])->name('user-role.store');
+    Route::put('/users-roles/{iduser}/{idrole}/activate', [UserRoleController::class, 'activate'])->name('user-role.activate');
+    Route::delete('/users-roles/{iduser}/{idrole}', [UserRoleController::class, 'destroy'])->name('user-role.destroy');
     
     Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
     Route::get('/roles/create', [RoleController::class, 'create'])->name('roles.create');

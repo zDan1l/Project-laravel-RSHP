@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+
 class Role extends Model
 {
     protected $table = 'role';
@@ -13,12 +14,12 @@ class Role extends Model
     protected $guarded = [];
     
     /**
-     * Relasi Many-to-Many dengan User melalui tabel pivot role_user
+     * Relasi Many-to-Many dengan User melalui tabel pivot user_role
      * 
-     * @return BelongsToMany
+     * @return HasMany
      */
     public function userRole(): HasMany 
     {
-        return $this->hasMany(UserRole::class, 'idrole', 'dirole');
+        return $this->hasMany(UserRole::class, 'idrole', 'idrole');
     }
 }
