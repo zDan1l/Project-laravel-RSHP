@@ -106,13 +106,25 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'isAdministrator'])-
 // resepsionis routes
 Route::prefix('resepsionis')->name('resepsionis.')->middleware(['auth', 'isResepsionis'])->group(function () {
     // Dashboard
-    Route::get('/dashboard', function () {
-        return view('resepsionis.dashboard.index');
-    })->name('dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\resepsionis\ResepsionisDashboardController::class, 'index'])->name('dashboard');
+    
+    // Pemilik Management
+    Route::get('/pemilik', [ResepsionisPemilikController::class, 'index'])->name('pemilik.index');
+    Route::get('/pemilik/create', [ResepsionisPemilikController::class, 'create'])->name('pemilik.create');
+    Route::post('/pemilik', [ResepsionisPemilikController::class, 'store'])->name('pemilik.store');
+    Route::get('/pemilik/{id}', [ResepsionisPemilikController::class, 'show'])->name('pemilik.show');
+    Route::get('/pemilik/{id}/edit', [ResepsionisPemilikController::class, 'edit'])->name('pemilik.edit');
+    Route::put('/pemilik/{id}', [ResepsionisPemilikController::class, 'update'])->name('pemilik.update');
+    Route::delete('/pemilik/{id}', [ResepsionisPemilikController::class, 'destroy'])->name('pemilik.destroy');
     
     // Pet Management
-    Route::get('/pemilik', [ResepsionisPemilikController::class, 'index'])->name('pemilik.index');
     Route::get('/pets', [ResepsionisPetController::class, 'index'])->name('pet.index');
+    Route::get('/pets/create', [ResepsionisPetController::class, 'create'])->name('pet.create');
+    Route::post('/pets', [ResepsionisPetController::class, 'store'])->name('pet.store');
+    Route::get('/pets/{id}', [ResepsionisPetController::class, 'show'])->name('pet.show');
+    Route::get('/pets/{id}/edit', [ResepsionisPetController::class, 'edit'])->name('pet.edit');
+    Route::put('/pets/{id}', [ResepsionisPetController::class, 'update'])->name('pet.update');
+    Route::delete('/pets/{id}', [ResepsionisPetController::class, 'destroy'])->name('pet.destroy');
     
     // Temu Dokter Management
     Route::get('/temu-dokter', [ResepsionisTemuController::class, 'index'])->name('temu-dokter.index');

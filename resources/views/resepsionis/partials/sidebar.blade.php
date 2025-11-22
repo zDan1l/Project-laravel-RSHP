@@ -1,9 +1,9 @@
 <div class="sidebar" id="sidebar">
     <!-- Sidebar Header -->
     <div class="sidebar-header">
-        <a href="{{ route('perawat.dashboard') }}" class="logo d-flex align-items-center">
+        <a href="{{ route('resepsionis.dashboard') }}" class="logo d-flex align-items-center">
             <i class="fas fa-paw me-2"></i>
-            <span class="logo-text">RSHP Perawat</span>
+            <span class="logo-text">RSHP Resepsionis</span>
         </a>
     </div>
 
@@ -24,15 +24,10 @@
                 <hr class="sidebar-divider" style="border-color: #374151; margin: 0.5rem 1rem;">
             </li>
 
-            <!-- Divider -->
-            <li class="nav-item">
-                <hr class="sidebar-divider" style="border-color: #374151; margin: 0.5rem 1rem;">
-            </li>
-
-            <!-- Pet Management -->
+            <!-- Registrasi Section -->
             <li class="nav-item">
                 <div class="nav-section-title" style="color: #9ca3af; font-size: 0.75rem; padding: 0.5rem 1rem; text-transform: uppercase; font-weight: 600;">
-                    <span>Rekam Medis</span>
+                    <span>Registrasi</span>
                 </div>
             </li>
 
@@ -41,7 +36,16 @@
                 <a class="nav-link {{ request()->routeIs('resepsionis.pemilik.*') ? 'active' : '' }}" 
                    href="{{ route('resepsionis.pemilik.index') }}">
                     <i class="fas fa-user"></i>
-                    <span>Rekam Medis</span>
+                    <span>Data Pemilik</span>
+                </a>
+            </li>
+
+            <!-- Pet -->
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('resepsionis.pet.*') ? 'active' : '' }}" 
+                   href="{{ route('resepsionis.pet.index') }}">
+                    <i class="fas fa-shield-dog"></i>
+                    <span>Data Pet</span>
                 </a>
             </li>
 
@@ -50,19 +54,19 @@
                 <hr class="sidebar-divider" style="border-color: #374151; margin: 0.5rem 1rem;">
             </li>
 
-            <!-- Clinical Data -->
+            <!-- Temu Dokter Section -->
             <li class="nav-item">
                 <div class="nav-section-title" style="color: #9ca3af; font-size: 0.75rem; padding: 0.5rem 1rem; text-transform: uppercase; font-weight: 600;">
-                    <span>Tindakan</span>
+                    <span>Jadwal & Temu Dokter</span>
                 </div>
             </li>
 
-            <!-- Kode Tindakan Terapi -->
+            <!-- Temu Dokter -->
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('resepsionis.temu-dokter.*') ? 'active' : '' }}" 
                    href="{{ route('resepsionis.temu-dokter.index') }}">
-                    <i class="fas fa-stethoscope"></i>
-                    <span>Tindakan Terapi</span>
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Jadwal Temu Dokter</span>
                 </a>
             </li>
 
@@ -98,33 +102,5 @@
 
 .sidebar.collapsed .sidebar-divider {
     margin: 0.25rem 0.5rem;
-}
-
-/* Logo styling */
-.logo {
-    color: white !important;
-    text-decoration: none !important;
-    transition: all 0.3s ease;
-}
-
-.logo:hover {
-    color: #e5e7eb !important;
-}
-
-.sidebar.collapsed .logo-text {
-    display: none;
-}
-
-.sidebar.collapsed .sidebar-header {
-    text-align: center;
-    padding: 1rem 0.5rem;
-}
-
-.sidebar.collapsed .logo {
-    justify-content: center;
-}
-
-.sidebar.collapsed .logo .me-2 {
-    margin-right: 0 !important;
 }
 </style>
