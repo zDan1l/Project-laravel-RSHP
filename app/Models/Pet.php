@@ -8,7 +8,11 @@ class Pet extends Model
 {
     protected $table = 'pet';
     protected $primaryKey = 'idpet';
+    public $incrementing = false;
+    protected $keyType = 'string';
     protected $guarded = [];
+    public $timestamps = false;
+
 
     public function pemilik(){
         return $this->belongsTo(Pemilik::class, 'idpemilik', 'idpemilik');
@@ -18,7 +22,4 @@ class Pet extends Model
         return $this->belongsTo(Ras::class, 'idras_hewan', 'idras_hewan');
     }
 
-    public function jenisHewan(){
-        return $this->belongsTo(JenisHewan::class, 'idjenis_hewan', 'idjenis_hewan');
-    }
 }

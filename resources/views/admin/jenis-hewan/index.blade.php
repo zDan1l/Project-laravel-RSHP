@@ -52,22 +52,28 @@
                                         <td>{{ $loop->iteration }}</td>
                                         <td>
                                             <div class="d-flex align-items-center">
+                                                <div class="me-3">
+                                                    <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #16a34a, #15803d); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                                                        <i class="fas fa-paw"></i>
+                                                    </div>
+                                                </div>
                                                 <div>
-                                                    <div class="fw-bold">{{ $jenis->nama_jenis_hewan }}</div>
+                                                    <div class="fw-bold">{{ $jenis->nama_jenis }}</div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
                                             <div class="btn-group" role="group">
-                                                <a href="#" class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a href="#" class="btn btn-sm btn-outline-warning">
+                                                <a href="{{ route('admin.jenis-hewan.edit', $jenis->idjenis_hewan) }}" class="btn btn-sm btn-outline-warning" title="Edit">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete(1)">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
+                                                <form action="{{ route('admin.jenis-hewan.destroy', $jenis->idjenis_hewan) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus jenis hewan {{ $jenis->nama_jenis }}?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
                                             </div>
                                         </td>
                                     </tr>

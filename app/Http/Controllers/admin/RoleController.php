@@ -89,7 +89,7 @@ class RoleController extends Controller
             $role = Role::findOrFail($id);
             
             // Check if role is being used
-            if ($role->userRoles()->exists()) {
+            if ($role->userRole()->exists()) {
                 return redirect()
                     ->back()
                     ->with('error', 'Role tidak dapat dihapus karena sedang digunakan oleh user');

@@ -23,23 +23,24 @@ class PemilikController extends Controller
     public function store(Request $request){
         $validated = $request->validate([
             'iduser' => 'required|exists:user,iduser|unique:pemilik,iduser',
-            'nama' => 'required|string|max:100',
+            'no_wa' => 'required|string|max:15',
             'alamat' => 'required|string|max:255',
-            'no_telepon' => 'required|string|max:15',
         ], [
             'iduser.required' => 'User harus dipilih',
             'iduser.exists' => 'User tidak valid',
             'iduser.unique' => 'User sudah terdaftar sebagai pemilik',
-            'nama.required' => 'Nama harus diisi',
-            'nama.max' => 'Nama maksimal 100 karakter',
+            'no_wa.required' => 'No WhatsApp harus diisi',
+            'no_wa.max' => 'No WhatsApp maksimal 15 karakter',
             'alamat.required' => 'Alamat harus diisi',
             'alamat.max' => 'Alamat maksimal 255 karakter',
-            'no_telepon.required' => 'No telepon harus diisi',
-            'no_telepon.max' => 'No telepon maksimal 15 karakter',
         ]);
 
         try {
             DB::beginTransaction();
+
+            // Generate idpemilik (ambil max id + 1)
+            $lastId = Pemilik::max('idpemilik');
+            $validated['idpemilik'] = $lastId ? $lastId + 1 : 1;
 
             Pemilik::create($validated);
 
@@ -72,19 +73,16 @@ class PemilikController extends Controller
 
         $validated = $request->validate([
             'iduser' => 'required|exists:user,iduser|unique:pemilik,iduser,' . $id . ',idpemilik',
-            'nama' => 'required|string|max:100',
+            'no_wa' => 'required|string|max:15',
             'alamat' => 'required|string|max:255',
-            'no_telepon' => 'required|string|max:15',
         ], [
             'iduser.required' => 'User harus dipilih',
             'iduser.exists' => 'User tidak valid',
             'iduser.unique' => 'User sudah terdaftar sebagai pemilik',
-            'nama.required' => 'Nama harus diisi',
-            'nama.max' => 'Nama maksimal 100 karakter',
+            'no_wa.required' => 'No WhatsApp harus diisi',
+            'no_wa.max' => 'No WhatsApp maksimal 15 karakter',
             'alamat.required' => 'Alamat harus diisi',
             'alamat.max' => 'Alamat maksimal 255 karakter',
-            'no_telepon.required' => 'No telepon harus diisi',
-            'no_telepon.max' => 'No telepon maksimal 15 karakter',
         ]);
 
         try {
@@ -112,18 +110,23 @@ class PemilikController extends Controller
             $pemilik = Pemilik::findOrFail($id);
             
             // Check if pemilik has pets
-            if ($pemilik->pets()->exists()) {
+            if ($pemilik->pet()->exists()) {
                 return redirect()
                     ->back()
                     ->with('error', 'Pemilik tidak dapat dihapus karena memiliki pet terdaftar');
             }
 
+            DB::beginTransaction();
+
             $pemilik->delete();
+
+            DB::commit();
 
             return redirect()
                 ->route('admin.pemilik.index')
                 ->with('success', 'Pemilik berhasil dihapus');
         } catch (\Exception $e) {
+            DB::rollBack();
             return redirect()
                 ->back()
                 ->with('error', 'Gagal menghapus pemilik: ' . $e->getMessage());

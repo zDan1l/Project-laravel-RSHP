@@ -61,18 +61,21 @@
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>{{ $user->email }}</td>
+                                        <td>
+                                            {{ $user->email }}
+                                        </td>
                                         <td>
                                             <div class="btn-group" role="group">
-                                                <a href="#" class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a href="#" class="btn btn-sm btn-outline-warning">
+                                                <a href="{{ route('admin.users.edit', $user->iduser) }}" class="btn btn-sm btn-outline-warning" title="Edit user">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete(1)">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
+                                                <form action="{{ route('admin.users.destroy', $user->iduser) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus user {{ $user->nama }}? User yang sedang login tidak bisa dihapus.')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus user">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
                                             </div>
                                         </td>
                                     </tr>

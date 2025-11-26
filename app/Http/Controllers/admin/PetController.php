@@ -6,52 +6,49 @@ use App\Http\Controllers\Controller;
 use App\Models\Pet;
 use App\Models\Pemilik;
 use App\Models\JenisHewan;
+use App\Models\Ras;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class PetController extends Controller
 {
     public function index(){
-        $pets = Pet::with(['pemilik', 'jenisHewan'])->get();
+        $pets = Pet::with(['pemilik.user', 'ras'])->orderBy('idpet', 'desc')->get();
         return view('admin.pet.index', compact('pets'));
     }
 
     public function create(){
-        $pemiliks = Pemilik::orderBy('nama')->get();
-        $jenisHewans = JenisHewan::orderBy('nama_jenis')->get();
-        return view('admin.pet.create', compact('pemiliks', 'jenisHewans'));
+        $pemiliks = Pemilik::with('user')->orderBy('idpemilik', 'desc')->get();
+        $rasHewans = Ras::orderBy('nama_ras')->get();
+        return view('admin.pet.create', compact('pemiliks', 'rasHewans'));
     }
 
     public function store(Request $request){
         $validated = $request->validate([
             'nama' => 'required|string|max:100',
-            'idjenis_hewan' => 'required|exists:jenis_hewan,idjenis_hewan',
-            'ras' => 'nullable|string|max:100',
-            'jenis_kelamin' => 'required|in:jantan,betina',
+            'idras_hewan' => 'required|exists:ras_hewan,idras_hewan',
+            'jenis_kelamin' => 'required',
             'tanggal_lahir' => 'nullable|date',
-            'warna' => 'nullable|string|max:50',
-            'ciri_khas' => 'nullable|string|max:255',
-            'berat' => 'nullable|numeric|min:0',
-            'tinggi' => 'nullable|numeric|min:0',
+            'warna_tanda' => 'nullable|string|max:50',
             'idpemilik' => 'required|exists:pemilik,idpemilik',
         ], [
             'nama.required' => 'Nama pet harus diisi',
             'nama.max' => 'Nama pet maksimal 100 karakter',
-            'idjenis_hewan.required' => 'Jenis hewan harus dipilih',
-            'idjenis_hewan.exists' => 'Jenis hewan tidak valid',
+            'idras_hewan.required' => 'Ras harus dipilih',
+            'idras_hewan.exists' => 'Ras tidak valid',
             'jenis_kelamin.required' => 'Jenis kelamin harus dipilih',
             'jenis_kelamin.in' => 'Jenis kelamin harus jantan atau betina',
             'tanggal_lahir.date' => 'Format tanggal lahir tidak valid',
-            'berat.numeric' => 'Berat harus berupa angka',
-            'berat.min' => 'Berat tidak boleh negatif',
-            'tinggi.numeric' => 'Tinggi harus berupa angka',
-            'tinggi.min' => 'Tinggi tidak boleh negatif',
             'idpemilik.required' => 'Pemilik harus dipilih',
             'idpemilik.exists' => 'Pemilik tidak valid',
         ]);
 
         try {
             DB::beginTransaction();
+
+            // Generate ID manually since idpet is not auto-increment
+            $lastId = Pet::max('idpet');
+            $validated['idpet'] = $lastId ? $lastId + 1 : 1;
 
             Pet::create($validated);
 
@@ -71,10 +68,10 @@ class PetController extends Controller
 
     public function edit($id)
     {
-        $pet = Pet::with(['pemilik', 'jenisHewan'])->findOrFail($id);
-        $pemilik = Pemilik::orderBy('nama')->get();
-        $jenisHewan = JenisHewan::orderBy('nama_jenis')->get();
-        return view('admin.pet.edit', compact('pet', 'pemilik', 'jenisHewan'));
+        $pet = Pet::with(['pemilik.user', 'ras'])->findOrFail($id);
+        $pemiliks = Pemilik::with('user')->orderBy('idpemilik', 'desc')->get();
+        $rasHewans = Ras::orderBy('nama_ras')->get();
+        return view('admin.pet.edit', compact('pet', 'pemiliks', 'rasHewans'));
     }
 
     public function update(Request $request, $id)
@@ -83,27 +80,19 @@ class PetController extends Controller
 
         $validated = $request->validate([
             'nama' => 'required|string|max:100',
-            'idjenis_hewan' => 'required|exists:jenis_hewan,idjenis_hewan',
-            'ras' => 'nullable|string|max:100',
+            'idras_hewan' => 'required|exists:ras_hewan,idras_hewan',
             'jenis_kelamin' => 'required|in:Jantan,Betina',
             'tanggal_lahir' => 'nullable|date',
-            'warna' => 'nullable|string|max:50',
-            'ciri_khas' => 'nullable|string|max:255',
-            'berat' => 'nullable|numeric|min:0',
-            'tinggi' => 'nullable|numeric|min:0',
+            'warna_tanda' => 'nullable|string|max:50',
             'idpemilik' => 'required|exists:pemilik,idpemilik',
         ], [
             'nama.required' => 'Nama pet harus diisi',
             'nama.max' => 'Nama pet maksimal 100 karakter',
-            'idjenis_hewan.required' => 'Jenis hewan harus dipilih',
-            'idjenis_hewan.exists' => 'Jenis hewan tidak valid',
+            'idras_hewan.required' => 'Ras harus dipilih',
+            'idras_hewan.exists' => 'Ras tidak valid',
             'jenis_kelamin.required' => 'Jenis kelamin harus dipilih',
             'jenis_kelamin.in' => 'Jenis kelamin harus Jantan atau Betina',
             'tanggal_lahir.date' => 'Format tanggal lahir tidak valid',
-            'berat.numeric' => 'Berat harus berupa angka',
-            'berat.min' => 'Berat tidak boleh negatif',
-            'tinggi.numeric' => 'Tinggi harus berupa angka',
-            'tinggi.min' => 'Tinggi tidak boleh negatif',
             'idpemilik.required' => 'Pemilik harus dipilih',
             'idpemilik.exists' => 'Pemilik tidak valid',
         ]);
@@ -139,12 +128,17 @@ class PetController extends Controller
                     ->with('error', 'Pet tidak dapat dihapus karena memiliki rekam medis');
             }
 
+            DB::beginTransaction();
+
             $pet->delete();
+
+            DB::commit();
 
             return redirect()
                 ->route('admin.pets.index')
                 ->with('success', 'Pet berhasil dihapus');
         } catch (\Exception $e) {
+            DB::rollBack();
             return redirect()
                 ->back()
                 ->with('error', 'Gagal menghapus pet: ' . $e->getMessage());

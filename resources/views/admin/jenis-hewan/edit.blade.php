@@ -6,7 +6,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Tambah Role Baru</h4>
+                    <h4 class="mb-0">Edit Jenis Hewan</h4>
                 </div>
                 <div class="card-body">
                     @if(session('error'))
@@ -16,24 +16,25 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('admin.roles.store') }}" method="POST">
+                    <form action="{{ route('admin.jenis-hewan.update', $item->idjenis_hewan) }}" method="POST">
                         @csrf
+                        @method('PUT')
                         
                         <div class="mb-3">
-                            <label for="nama_role" class="form-label">Nama Role <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control @error('nama_role') is-invalid @enderror" 
-                                   id="nama_role" name="nama_role" value="{{ old('nama_role') }}" 
-                                   placeholder="Contoh: Admin, Dokter, Perawat, Resepsionis" required>
-                            @error('nama_role')
+                            <label for="nama_jenis" class="form-label">Nama Jenis Hewan <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control @error('nama_jenis') is-invalid @enderror" 
+                                   id="nama_jenis" name="nama_jenis" value="{{ old('nama_jenis', $item->nama_jenis) }}" required>
+                            @error('nama_jenis')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            <small class="text-muted">Contoh: Anjing, Kucing, Kelinci, dll</small>
                         </div>
 
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-1"></i> Simpan
+                                <i class="fas fa-save me-1"></i> Update
                             </button>
-                            <a href="{{ route('admin.roles.index') }}" class="btn btn-secondary">
+                            <a href="{{ route('admin.jenis-hewan.index') }}" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left me-1"></i> Kembali
                             </a>
                         </div>

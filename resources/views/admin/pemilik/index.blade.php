@@ -66,15 +66,16 @@
                                         <td>{{ $pemilik->alamat }}</td>
                                         <td>
                                             <div class="btn-group" role="group">
-                                                <a href="#" class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a href="#" class="btn btn-sm btn-outline-warning">
+                                                <a href="{{ route('admin.pemilik.edit', $pemilik->idpemilik) }}" class="btn btn-sm btn-outline-warning" title="Edit">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete(1)">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
+                                                <form action="{{ route('admin.pemilik.destroy', $pemilik->idpemilik) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus pemilik {{ $pemilik->user->nama }}?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
                                             </div>
                                         </td>
                                     </tr>

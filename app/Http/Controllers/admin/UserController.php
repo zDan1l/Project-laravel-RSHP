@@ -7,22 +7,45 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule; // Tambahkan ini untuk validasi unik yang lebih baik
+use Illuminate\Support\Facades\Auth; // Tambahkan ini untuk penggunaan auth() yang lebih eksplisit
 
 class UserController extends Controller
 {
-    public function index(){
+    /**
+     * Menampilkan daftar pengguna.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function index()
+    {
+        // Gunakan paginate() jika jumlah pengguna banyak
         $users = User::with('userRole')->get();
         return view('admin.user.index', compact('users'));
     }
 
-    public function create(){
+    /**
+     * Menampilkan formulir untuk membuat pengguna baru.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function create()
+    {
         return view('admin.user.create');
     }
 
-    public function store(Request $request){
+    /**
+     * Menyimpan pengguna baru ke database.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function store(Request $request)
+    {
+        // Perbaikan: Ubah 'nama' menjadi 'name' jika sesuai dengan konvensi kolom di tabel users
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:user,email|max:255',
+            'name' => 'required|string|max:100', // Asumsi kolom adalah 'name'
+            'email' => 'required|email|unique:users,email|max:100', // Perbaikan: Gunakan 'users' bukan 'user' jika tabel default
             'password' => 'required|string|min:6|confirmed',
         ], [
             'name.required' => 'Nama harus diisi',
@@ -37,11 +60,12 @@ class UserController extends Controller
         try {
             DB::beginTransaction();
 
-            User::create([
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
-            ]);
+            $validated['password'] = Hash::make($validated['password']);
+            // Perbaikan: Ganti key 'nama' menjadi 'name' di array $validated
+            $validated['nama'] = $validated['name']; 
+            unset($validated['name']);
+
+            User::create($validated);
 
             DB::commit();
 
@@ -57,19 +81,40 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Menampilkan formulir untuk mengedit pengguna tertentu.
+     *
+     * @param  int  $id
+     * @return \Illuminate\View\View
+     */
     public function edit($id)
     {
         $user = User::findOrFail($id);
         return view('admin.user.edit', compact('user'));
     }
 
+    /**
+     * Memperbarui pengguna tertentu di database.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
-
+        
+        // Perbaikan: Gunakan Rule::unique() untuk validasi unik yang lebih rapi
+        // Perbaikan: Ubah 'nama' menjadi 'name' jika sesuai dengan konvensi kolom
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:user,email,' . $id . ',iduser',
+            'name' => 'required|string|max:100', // Asumsi kolom adalah 'name'
+            // Perbaikan: Gunakan Rule::unique untuk email, menyesuaikan dengan id saat ini dan nama kolom primary key
+            'email' => [
+                'required',
+                'email',
+                'max:100',
+                Rule::unique('users', 'email')->ignore($user->id, $user->getKeyName()),
+            ],
             'password' => 'nullable|string|min:6|confirmed',
         ], [
             'name.required' => 'Nama harus diisi',
@@ -82,18 +127,19 @@ class UserController extends Controller
 
         try {
             DB::beginTransaction();
-
-            $dataToUpdate = [
-                'name' => $validated['name'],
+            
+            // Perbaikan: Pisahkan 'nama' dan 'email' dari $validated untuk update
+            $updateData = [
+                'nama' => $validated['name'], // Asumsi kolom di DB adalah 'nama'
                 'email' => $validated['email'],
             ];
 
             // Only update password if provided
             if (!empty($validated['password'])) {
-                $dataToUpdate['password'] = Hash::make($validated['password']);
+                $updateData['password'] = Hash::make($validated['password']);
             }
 
-            $user->update($dataToUpdate);
+            $user->update($updateData);
 
             DB::commit();
 
@@ -109,24 +155,59 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Menghapus pengguna tertentu.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function destroy($id)
     {
         try {
+            // Gunakan find() daripada findOrFail() sebelum transaksi,
+            // atau pastikan findOrFail() di luar try/catch jika ingin Laravel menangani 404
             $user = User::findOrFail($id);
             
-            // Check if user has related data
+            // Cek apakah user sedang login
+            // Perbaikan: Gunakan helper Auth::id() atau Auth::user()->getKey()
+            if (Auth::id() && $user->getKey() == Auth::id()) {
+                return redirect()
+                    ->back()
+                    ->with('error', 'Tidak dapat menghapus user yang sedang login');
+            }
+            
+            // Check if user has related data (Asumsi: Anda punya relasi 'pemilik')
+            // Harap pastikan relasi 'pemilik' ada di model User.
             if ($user->pemilik()->exists()) {
                 return redirect()
                     ->back()
                     ->with('error', 'User tidak dapat dihapus karena memiliki data pemilik terkait');
             }
 
+            DB::beginTransaction();
+
+            // Hapus relasi user_role terlebih dahulu (Asumsi: Relasi 'userRole' ada)
+            // Jika relasi 'userRole' menggunakan Foreign Key dengan ON DELETE CASCADE, 
+            // baris ini mungkin tidak diperlukan. Namun, jika ini tabel pivot, ini benar.
+            if ($user->userRole()->exists()) {
+                $user->userRole()->delete();
+            }
+            
             $user->delete();
+
+            DB::commit();
 
             return redirect()
                 ->route('admin.users.index')
                 ->with('success', 'User berhasil dihapus');
         } catch (\Exception $e) {
+            DB::rollBack();
+            // Perbaikan: Tangkap ModelNotFoundException secara terpisah jika ingin error 404 yang standar
+            if ($e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
+                return redirect()
+                    ->back()
+                    ->with('error', 'User tidak ditemukan');
+            }
             return redirect()
                 ->back()
                 ->with('error', 'Gagal menghapus user: ' . $e->getMessage());

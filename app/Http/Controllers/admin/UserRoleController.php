@@ -88,10 +88,28 @@ class UserRoleController extends Controller
     }
 
     /**
-     * Activate a specific role (deactivate others)
+     * Show form to change/switch user role
      */
-    public function activate($iduser, $idrole)
+    public function edit($iduser)
     {
+        $user = User::with('userRole.role')->findOrFail($iduser);
+        $roles = Role::all();
+        
+        return view('admin.userrole.edit', compact('user', 'roles'));
+    }
+
+    /**
+     * Update/ganti role user (ubah role aktif ke role lain)
+     */
+    public function update(Request $request, $iduser)
+    {
+        $validated = $request->validate([
+            'idrole' => 'required|exists:role,idrole',
+        ], [
+            'idrole.required' => 'Role baru harus dipilih',
+            'idrole.exists' => 'Role tidak valid',
+        ]);
+
         try {
             DB::beginTransaction();
 
@@ -99,27 +117,34 @@ class UserRoleController extends Controller
             UserRole::where('iduser', $iduser)
                     ->update(['status' => 0]);
 
-            // Activate selected role
-            $userRole = UserRole::where('iduser', $iduser)
-                               ->where('idrole', $idrole)
-                               ->first();
+            // Check if this role already exists for the user
+            $existingRole = UserRole::where('iduser', $iduser)
+                                   ->where('idrole', $validated['idrole'])
+                                   ->first();
 
-            if (!$userRole) {
-                throw new \Exception('Role tidak ditemukan untuk user ini');
+            if ($existingRole) {
+                // Just activate the existing role
+                $existingRole->update(['status' => 1]);
+            } else {
+                // Create new role assignment as active
+                UserRole::create([
+                    'iduser' => $iduser,
+                    'idrole' => $validated['idrole'],
+                    'status' => 1,
+                ]);
             }
-
-            $userRole->update(['status' => 1]);
 
             DB::commit();
 
             return redirect()
-                ->back()
-                ->with('success', 'Role berhasil diaktifkan');
+                ->route('admin.user-role.index')
+                ->with('success', 'Role user berhasil diganti');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()
                 ->back()
-                ->with('error', 'Gagal mengaktifkan role: ' . $e->getMessage());
+                ->withInput()
+                ->with('error', 'Gagal mengganti role: ' . $e->getMessage());
         }
     }
 

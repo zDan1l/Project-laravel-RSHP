@@ -62,15 +62,16 @@
                                         </td>
                                         <td>
                                             <div class="btn-group" role="group">
-                                                <a href="#" class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a href="#" class="btn btn-sm btn-outline-warning">
+                                                <a href="{{ route('admin.roles.edit', $role->idrole) }}" class="btn btn-sm btn-outline-warning" title="Edit role">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <button class="btn btn-sm btn-outline-danger" onclick="confirmDelete(1)">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
+                                                <form action="{{ route('admin.roles.destroy', $role->idrole) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus role {{ $role->nama_role }}? Role yang sedang digunakan user tidak bisa dihapus.')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus role">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
                                             </div>
                                         </td>
                                     </tr>

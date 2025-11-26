@@ -36,64 +36,80 @@
                     </div>
                 </div>
                 <div class="card-body">
+                    @if(session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    @endif
+
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
                                     <th>No</th>
-                                    <th>Nama</th>
-                                    <th>Tanggal Lahir</th>
-                                    <th>Warna Tanda</th>
-                                    <th>Jenis Kelamin</th>
+                                    <th>Nama Pet</th>
+                                    <th>Pemilik</th>
                                     <th>Ras</th>
+                                    <th>Jenis Kelamin</th>
+                                    <th>Tanggal Lahir</th>
+                                    <th>Warna</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($pets as $pet)
+                                @forelse ($pets as $pet)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <div class="me-3">
-                                                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #2563eb, #1e40af); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
-                                                        <i class="fas fa-dog"></i>
+                                                    <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #2563eb, #1e40af); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                                                        <i class="fas fa-paw"></i>
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <div class="fw-bold">{{ $pet->nama }}</div>
+                                                    <div class="fw-bold">{{ $pet->nama_pet }}</div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <div>
-                                                <div>{{ $pet->tanggal_lahir }}</div>
-                                            </div>
+                                            <div class="fw-bold">{{ $pet->pemilik->user->nama }}</div>
+                                            <small class="text-muted">{{ $pet->pemilik->no_wa }}</small>
                                         </td>
+                                        <td>{{ $pet->ras->nama_ras ?? '-' }}</td>
                                         <td>
-                                            <div>{{ $pet->warna_tanda }}</div>
+                                            <span class="badge bg-{{ $pet->jenis_kelamin == 'Jantan' ? 'primary' : 'danger' }}">
+                                                {{ $pet->jenis_kelamin }}
+                                            </span>
                                         </td>
-                                        <td>
-                                            <div>{{ $pet->jenis_kelamin }}</div>
-                                        </td>
-                                        <td>
-                                            <div>{{ $pet->ras->nama_ras }}</div>
-                                        </td>
+                                        <td>{{ $pet->tanggal_lahir ? \Carbon\Carbon::parse($pet->tanggal_lahir)->format('d/m/Y') : '-' }}</td>
+                                        <td>{{ $pet->warna_tanda ?? '-' }}</td>
                                         <td>
                                             <div class="btn-group" role="group">
-                                                <a href="#" class="btn btn-sm btn-outline-primary" title="View">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                                <a href="#" class="btn btn-sm btn-outline-warning" title="Edit">
+                                                <a href="{{ route('admin.pets.edit', $pet->idpet) }}" class="btn btn-sm btn-outline-warning" title="Edit">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <button class="btn btn-sm btn-outline-danger" title="Delete">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
+                                                <form action="{{ route('admin.pets.destroy', $pet->idpet) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus pet {{ $pet->nama_pet }}?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
                                             </div>
                                         </td>
                                     </tr>
-                                @endforeach
+                                @empty
+                                    <tr>
+                                        <td colspan="8" class="text-center py-4">
+                                            <div class="text-muted">
+                                                <i class="fas fa-paw fa-3x mb-3"></i>
+                                                <h5>Belum ada pet terdaftar</h5>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>

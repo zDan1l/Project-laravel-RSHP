@@ -12,6 +12,7 @@ class Role extends Model
     protected $table = 'role';
     protected $primaryKey = 'idrole';  // Tentukan primary key yang benar
     protected $guarded = [];
+    public $timestamps = false;
     
     /**
      * Relasi Many-to-Many dengan User melalui tabel pivot user_role

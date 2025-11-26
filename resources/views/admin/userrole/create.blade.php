@@ -31,7 +31,7 @@
                                 <option value="">-- Pilih User --</option>
                                 @foreach($users as $user)
                                     <option value="{{ $user->iduser }}" {{ old('iduser', request('user')) == $user->iduser ? 'selected' : '' }}>
-                                        {{ $user->name }} ({{ $user->email }})
+                                        {{ $user->nama }} ({{ $user->email }})
                                     </option>
                                 @endforeach
                             </select>

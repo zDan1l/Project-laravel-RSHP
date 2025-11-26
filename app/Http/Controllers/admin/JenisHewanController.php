@@ -121,12 +121,17 @@ class JenisHewanController extends Controller
                     ->with('error', 'Jenis hewan tidak dapat dihapus karena sedang digunakan oleh pet');
             }
 
+            DB::beginTransaction();
+
             $item->delete();
+
+            DB::commit();
 
             return redirect()
                 ->route('admin.jenis-hewan.index')
                 ->with('success', 'Jenis hewan berhasil dihapus');
         } catch (\Exception $e) {
+            DB::rollBack();
             return redirect()
                 ->back()
                 ->with('error', 'Gagal menghapus jenis hewan: ' . $e->getMessage());
@@ -143,6 +148,10 @@ class JenisHewanController extends Controller
     {
         // Sanitize data sebelum create
         $sanitizedData = ValidationHelper::sanitizeInput($data);
+        
+        // Generate ID manually since idjenis_hewan is not auto-increment
+        $lastId = JenisHewan::max('idjenis_hewan');
+        $sanitizedData['idjenis_hewan'] = $lastId ? $lastId + 1 : 1;
         
         // Create dan return model
         return JenisHewan::create($sanitizedData);

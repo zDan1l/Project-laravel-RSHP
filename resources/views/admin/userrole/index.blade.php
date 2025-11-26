@@ -61,10 +61,10 @@
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <div class="user-avatar me-3" style="width: 40px; height: 40px; background: linear-gradient(135deg, #2563eb, #1e40af); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
-                                                    {{ strtoupper(substr($user->name, 0, 2)) }}
+                                                    {{ strtoupper(substr($user->nama, 0, 2)) }}
                                                 </div>
                                                 <div>
-                                                    <div class="fw-bold text-dark">{{ $user->name }}</div>
+                                                    <div class="fw-bold text-dark">{{ $user->nama }}</div>
                                                     <small class="text-muted">{{ $user->email }}</small>
                                                 </div>
                                             </div>
@@ -88,16 +88,7 @@
                                                             @endif
                                                         </div>
                                                         <div class="btn-group btn-group-sm">
-                                                            @if($userRole->status == 0)
-                                                                <form action="{{ route('admin.user-role.activate', [$user->iduser, $userRole->idrole]) }}" method="POST" class="d-inline">
-                                                                    @csrf
-                                                                    @method('PUT')
-                                                                    <button type="submit" class="btn btn-outline-success btn-sm" title="Aktifkan role ini">
-                                                                        <i class="fas fa-toggle-on"></i>
-                                                                    </button>
-                                                                </form>
-                                                            @endif
-                                                            <form action="{{ route('admin.user-role.destroy', [$user->iduser, $userRole->idrole]) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus role {{ $userRole->role->nama_role }} dari {{ $user->name }}?')">
+                                                            <form action="{{ route('admin.user-role.destroy', [$user->iduser, $userRole->idrole]) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus role {{ $userRole->role->nama_role }} dari {{ $user->nama }}?')">
                                                                 @csrf
                                                                 @method('DELETE')
                                                                 <button type="submit" class="btn btn-outline-danger btn-sm" title="Hapus role">
@@ -115,10 +106,14 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <a href="{{ route('admin.user-role.create') }}?user={{ $user->iduser }}" class="btn btn-sm btn-outline-primary" title="Add/Change role">
-                                                <i class="fas fa-user-tag me-1"></i>
-                                                Manage Role
-                                            </a>
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ route('admin.user-role.edit', $user->iduser) }}" class="btn btn-sm btn-outline-warning" title="Ganti role">
+                                                    <i class="fas fa-exchange-alt"></i>
+                                                </a>
+                                                <a href="{{ route('admin.user-role.create') }}?user={{ $user->iduser }}" class="btn btn-sm btn-outline-primary" title="Tambah role">
+                                                    <i class="fas fa-user-tag"></i>
+                                                </a>
+                                            </div>
                                         </td>
                                     </tr>
                                     @empty
