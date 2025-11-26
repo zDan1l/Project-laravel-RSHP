@@ -21,10 +21,10 @@
                         @method('PUT')
                         
                         <div class="mb-3">
-                            <label for="nama_jenis" class="form-label">Nama Jenis Hewan <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control @error('nama_jenis') is-invalid @enderror" 
-                                   id="nama_jenis" name="nama_jenis" value="{{ old('nama_jenis', $item->nama_jenis) }}" required>
-                            @error('nama_jenis')
+                            <label for="nama_jenis_hewan" class="form-label">Nama Jenis Hewan <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control @error('nama_jenis_hewan') is-invalid @enderror" 
+                                   id="nama_jenis_hewan" name="nama_jenis_hewan" value="{{ old('nama_jenis_hewan', $item->nama_jenis_hewan) }}" required>
+                            @error('nama_jenis_hewan')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                             <small class="text-muted">Contoh: Anjing, Kucing, Kelinci, dll</small>

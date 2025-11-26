@@ -10,9 +10,6 @@ class JenisHewan extends Model
     protected $primaryKey = 'idjenis_hewan';
     public $incrementing = false;
     protected $keyType = 'string';
+    public $timestamps = false;
     protected $guarded = [];
-
-    public function pets(){
-        return $this->hasMany(Pet::class, 'idjenis_hewan', 'idjenis_hewan');
-    }
 }

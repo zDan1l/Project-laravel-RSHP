@@ -8,9 +8,8 @@ class Kategori extends Model
 {
     protected $table = 'kategori';
     protected $primaryKey = 'idkategori';
+    public $incrementing = false;
+    protected $keyType = 'string';
+    public $timestamps = false;
     protected $guarded = [];
-
-    public function kode(){
-        return $this->hasMany(KodeTindakanTerapi::class, 'idkategori', 'idkategori');
-    }
 }

@@ -8,6 +8,9 @@ class KodeTindakanTerapi extends Model
 {
     protected $table = 'kode_tindakan_terapi';
     protected $primaryKey = 'idkode_tindakan_terapi';
+    public $incrementing = false;
+    protected $keyType = 'string';
+    public $timestamps = false;
     protected $guarded = [];
 
     public function kategori(){

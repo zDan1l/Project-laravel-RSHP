@@ -58,7 +58,7 @@
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <div class="fw-bold">{{ $jenis->nama_jenis }}</div>
+                                                    <div class="fw-bold">{{ $jenis->nama_jenis_hewan }}</div>
                                                 </div>
                                             </div>
                                         </td>
@@ -67,7 +67,7 @@
                                                 <a href="{{ route('admin.jenis-hewan.edit', $jenis->idjenis_hewan) }}" class="btn btn-sm btn-outline-warning" title="Edit">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <form action="{{ route('admin.jenis-hewan.destroy', $jenis->idjenis_hewan) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus jenis hewan {{ $jenis->nama_jenis }}?')">
+                                                <form action="{{ route('admin.jenis-hewan.destroy', $jenis->idjenis_hewan) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus jenis hewan {{ $jenis->nama_jenis_hewan }}?')">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">

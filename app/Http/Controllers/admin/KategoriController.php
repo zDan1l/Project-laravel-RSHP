@@ -32,6 +32,10 @@ class KategoriController extends Controller
         try {
             DB::beginTransaction();
 
+            // Generate ID manually since idkategori is not auto-increment
+            $lastId = Kategori::max('idkategori');
+            $validated['idkategori'] = $lastId ? $lastId + 1 : 1;
+
             Kategori::create($validated);
 
             DB::commit();
@@ -88,20 +92,18 @@ class KategoriController extends Controller
     {
         try {
             $item = Kategori::findOrFail($id);
-            
-            // Check if being used
-            if ($item->kodeTindakanTerapi()->exists()) {
-                return redirect()
-                    ->back()
-                    ->with('error', 'Kategori tidak dapat dihapus karena sedang digunakan');
-            }
+
+            DB::beginTransaction();
 
             $item->delete();
+
+            DB::commit();
 
             return redirect()
                 ->route('admin.kategori.index')
                 ->with('success', 'Kategori berhasil dihapus');
         } catch (\Exception $e) {
+            DB::rollBack();
             return redirect()
                 ->back()
                 ->with('error', 'Gagal menghapus kategori: ' . $e->getMessage());

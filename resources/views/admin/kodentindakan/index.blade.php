@@ -16,6 +16,20 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
+                        @if(session('success'))
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        @endif
+
+                        @if(session('error'))
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        @endif
+
                         <div class="table-responsive">
                             <table class="table table-hover">
                                 <thead class="table-light">
@@ -24,6 +38,7 @@
                                         <th>Kode</th>
                                         <th>Deskripsi</th>
                                         <th>Kategori</th>
+                                        <th>Kategori Klinis</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
@@ -33,15 +48,26 @@
                                         <td>{{ $loop->iteration }}</td>
                                         <td>{{ $item->kode }}</td>
                                         <td>{{ $item->deskripsi_tindakan_terapi }}</td>
-                                        <td>{{ $item->kategori->nama_kategori }}</td>
+                                        <td>{{ $item->kategori->nama_kategori ?? '-' }}</td>
+                                        <td>{{ $item->kategoriKlinis->nama_kategori_klinis ?? '-' }}</td>
                                         <td>
-                                            <a href="#" class="btn btn-sm btn-outline-primary">Edit</a>
-                                            <a href="#" class="btn btn-sm btn-outline-danger">Hapus</a>
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ route('admin.kodentindakan.edit', $item->idkode_tindakan_terapi) }}" class="btn btn-sm btn-outline-warning" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <form action="{{ route('admin.kodentindakan.destroy', $item->idkode_tindakan_terapi) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus kode tindakan {{ $item->kode }}?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="5" class="text-center py-5">
+                                        <td colspan="6" class="text-center py-5">
                                             <div class="text-muted">
                                                 <h5>Tidak ada data</h5>
                                             </div>

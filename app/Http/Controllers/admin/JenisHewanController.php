@@ -4,8 +4,6 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\JenisHewan;
-use App\Helpers\StringHelper;
-use App\Helpers\ValidationHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -23,29 +21,20 @@ class JenisHewanController extends Controller
 
     public function store(Request $request){
         $validated = $request->validate([
-            'nama_jenis' => 'required|string|max:100',
+            'nama_jenis_hewan' => 'required|string|max:100',
         ], [
-            'nama_jenis.required' => 'Nama jenis hewan harus diisi',
-            'nama_jenis.max' => 'Nama jenis hewan maksimal 100 karakter',
+            'nama_jenis_hewan.required' => 'Nama jenis hewan harus diisi',
+            'nama_jenis_hewan.max' => 'Nama jenis hewan maksimal 100 karakter',
         ]);
-
-        // Additional validation using helper
-        $validationResult = ValidationHelper::validateNamaJenisHewan($validated['nama_jenis']);
-        if (!$validationResult['valid']) {
-            return redirect()
-                ->back()
-                ->withInput()
-                ->with('error', $validationResult['message']);
-        }
 
         try {
             DB::beginTransaction();
 
-            // Format nama jenis hewan sebelum menyimpan
-            $validated['nama_jenis'] = $this->formatNamaJenisHewan($validated['nama_jenis']);
+            // Generate ID manually since idjenis_hewan is not auto-increment
+            $lastId = JenisHewan::max('idjenis_hewan');
+            $validated['idjenis_hewan'] = $lastId ? $lastId + 1 : 1;
 
-            // Create using private function
-            $jenisHewan = $this->createJenisHewan($validated);
+            JenisHewan::create($validated);
 
             DB::commit();
 
@@ -72,26 +61,14 @@ class JenisHewanController extends Controller
         $item = JenisHewan::findOrFail($id);
 
         $validated = $request->validate([
-            'nama_jenis' => 'required|string|max:100',
+            'nama_jenis_hewan' => 'required|string|max:100',
         ], [
-            'nama_jenis.required' => 'Nama jenis hewan harus diisi',
-            'nama_jenis.max' => 'Nama jenis hewan maksimal 100 karakter',
+            'nama_jenis_hewan.required' => 'Nama jenis hewan harus diisi',
+            'nama_jenis_hewan.max' => 'Nama jenis hewan maksimal 100 karakter',
         ]);
-
-        // Additional validation using helper
-        $validationResult = ValidationHelper::validateNamaJenisHewan($validated['nama_jenis']);
-        if (!$validationResult['valid']) {
-            return redirect()
-                ->back()
-                ->withInput()
-                ->with('error', $validationResult['message']);
-        }
 
         try {
             DB::beginTransaction();
-
-            // Format nama jenis hewan sebelum update
-            $validated['nama_jenis'] = $this->formatNamaJenisHewan($validated['nama_jenis']);
 
             $item->update($validated);
 
@@ -113,13 +90,6 @@ class JenisHewanController extends Controller
     {
         try {
             $item = JenisHewan::findOrFail($id);
-            
-            // Check if being used by pets
-            if ($item->pets()->exists()) {
-                return redirect()
-                    ->back()
-                    ->with('error', 'Jenis hewan tidak dapat dihapus karena sedang digunakan oleh pet');
-            }
 
             DB::beginTransaction();
 
@@ -136,37 +106,5 @@ class JenisHewanController extends Controller
                 ->back()
                 ->with('error', 'Gagal menghapus jenis hewan: ' . $e->getMessage());
         }
-    }
-
-    /**
-     * Private function untuk membuat jenis hewan baru
-     * 
-     * @param array $data
-     * @return JenisHewan
-     */
-    private function createJenisHewan(array $data)
-    {
-        // Sanitize data sebelum create
-        $sanitizedData = ValidationHelper::sanitizeInput($data);
-        
-        // Generate ID manually since idjenis_hewan is not auto-increment
-        $lastId = JenisHewan::max('idjenis_hewan');
-        $sanitizedData['idjenis_hewan'] = $lastId ? $lastId + 1 : 1;
-        
-        // Create dan return model
-        return JenisHewan::create($sanitizedData);
-    }
-
-    /**
-     * Private function untuk format nama jenis hewan
-     * Menggunakan helper StringHelper
-     * 
-     * @param string $namaJenis
-     * @return string
-     */
-    private function formatNamaJenisHewan($namaJenis)
-    {
-        // Gunakan helper untuk format
-        return StringHelper::formatNamaJenisHewan($namaJenis);
     }
 }

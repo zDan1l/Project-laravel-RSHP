@@ -13,7 +13,7 @@ class KodeTindakanTerapiController extends Controller
 {
     public function index()
     {
-        $items = KodeTindakanTerapi::all();
+        $items = KodeTindakanTerapi::with(['kategori', 'kategoriKlinis'])->get();
         return view('admin.kodentindakan.index', compact('items'));
     }
 
@@ -44,6 +44,10 @@ class KodeTindakanTerapiController extends Controller
 
         try {
             DB::beginTransaction();
+
+            // Generate ID manually since idkode_tindakan_terapi is not auto-increment
+            $lastId = KodeTindakanTerapi::max('idkode_tindakan_terapi');
+            $validated['idkode_tindakan_terapi'] = $lastId ? $lastId + 1 : 1;
 
             KodeTindakanTerapi::create($validated);
 
@@ -112,20 +116,18 @@ class KodeTindakanTerapiController extends Controller
     {
         try {
             $item = KodeTindakanTerapi::findOrFail($id);
-            
-            // Check if being used in medical records
-            if ($item->detailRekamMedis()->exists()) {
-                return redirect()
-                    ->back()
-                    ->with('error', 'Kode tindakan tidak dapat dihapus karena sedang digunakan dalam rekam medis');
-            }
+
+            DB::beginTransaction();
 
             $item->delete();
+
+            DB::commit();
 
             return redirect()
                 ->route('admin.kodentindakan.index')
                 ->with('success', 'Kode tindakan terapi berhasil dihapus');
         } catch (\Exception $e) {
+            DB::rollBack();
             return redirect()
                 ->back()
                 ->with('error', 'Gagal menghapus kode tindakan terapi: ' . $e->getMessage());
