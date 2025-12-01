@@ -42,6 +42,21 @@ class TemuDokter extends Model
     }
 
     /**
+     * Relasi ke User (dokter) melalui UserRole
+     */
+    public function dokter()
+    {
+        return $this->hasOneThrough(
+            User::class,
+            UserRole::class,
+            'idrole_user', // Foreign key on UserRole table
+            'iduser',      // Foreign key on User table
+            'idrole_user', // Local key on TemuDokter table
+            'iduser'       // Local key on UserRole table
+        );
+    }
+
+    /**
      * Relasi ke Rekam Medis
      */
     public function rekamMedis()

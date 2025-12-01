@@ -24,33 +24,19 @@
                 <hr class="sidebar-divider" style="border-color: #374151; margin: 0.5rem 1rem;">
             </li>
 
-            <!-- Divider -->
-            <li class="nav-item">
-                <hr class="sidebar-divider" style="border-color: #374151; margin: 0.5rem 1rem;">
-            </li>
-
-            <!-- Pet Management -->
+            <!-- Patient Management Section -->
             <li class="nav-item">
                 <div class="nav-section-title" style="color: #9ca3af; font-size: 0.75rem; padding: 0.5rem 1rem; text-transform: uppercase; font-weight: 600;">
-                    <span>Rekam Medis</span>
+                    <span>Manajemen Pasien</span>
                 </div>
             </li>
 
-            <!-- Pemilik -->
+            <!-- Daftar Pasien -->
             <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('perawat.rekam-medis.*') ? 'active' : '' }}" 
-                   href="{{ route('perawat.rekam-medis.index') }}">
-                    <i class="fas fa-user"></i>
-                    <span>Rekam Medis</span>
-                </a>
-            </li>
-
-            <!-- Pet -->
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('perawat.tindakan-terapi.*') ? 'active' : '' }}" 
-                   href="{{ route('perawat.tindakan-terapi.index') }}">
-                    <i class="fas fa-paw"></i>
-                    <span>Tindakan Terapi</span>
+                <a class="nav-link {{ request()->routeIs('perawat.daftar-pasien.*') ? 'active' : '' }}" 
+                   href="{{ route('perawat.daftar-pasien.index') }}">
+                    <i class="fas fa-users"></i>
+                    <span>Daftar Pasien</span>
                 </a>
             </li>
 

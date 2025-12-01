@@ -148,27 +148,18 @@ Route::prefix('resepsionis')->name('resepsionis.')->middleware(['auth', 'isResep
 // perawat router
 Route::prefix('perawat')->name('perawat.')->middleware(['auth', 'isPerawat'])->group(function () {
     // Dashboard
-    Route::get('/dashboard', function () {
-        return view('perawat.dashboard.index');
-    })->name('dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\PerawatController::class, 'dashboard'])->name('dashboard');
     
-    // Rekam Medis
-    Route::get('/rekam-medis', [App\Http\Controllers\perawat\PerawatRekamMedisController::class, 'index'])->name('rekam-medis.index');
-    Route::get('/rekam-medis/{id}', [App\Http\Controllers\perawat\PerawatRekamMedisController::class, 'show'])->name('rekam-medis.show');
+    // Daftar Pasien
+    Route::get('/daftar-pasien', [App\Http\Controllers\PerawatController::class, 'daftarPasien'])->name('daftar-pasien.index');
     
-    // Detail Rekam Medis (Tindakan Terapi)
-    Route::post('/rekam-medis/{id}/detail', [App\Http\Controllers\perawat\PerawatRekamMedisController::class, 'storeDetail'])->name('rekam-medis.detail.store');
-    Route::put('/rekam-medis/{id}/detail/{idDetail}', [App\Http\Controllers\perawat\PerawatRekamMedisController::class, 'updateDetail'])->name('rekam-medis.detail.update');
-    Route::delete('/rekam-medis/{id}/detail/{idDetail}', [App\Http\Controllers\perawat\PerawatRekamMedisController::class, 'deleteDetail'])->name('rekam-medis.detail.delete');
+    // Rekam Medis (View Only - Read Only untuk rekam medis utama)
+    Route::get('/rekam-medis/{id}', [App\Http\Controllers\PerawatController::class, 'lihatRekamMedis'])->name('rekam-medis.show');
     
-    // Tindakan Terapi (CRUD)
-    Route::get('/tindakan-terapi', [App\Http\Controllers\perawat\PerawatTindakanController::class, 'index'])->name('tindakan-terapi.index');
-    Route::get('/tindakan-terapi/create', [App\Http\Controllers\perawat\PerawatTindakanController::class, 'create'])->name('tindakan-terapi.create');
-    Route::post('/tindakan-terapi', [App\Http\Controllers\perawat\PerawatTindakanController::class, 'store'])->name('tindakan-terapi.store');
-    Route::get('/tindakan-terapi/{id}', [App\Http\Controllers\perawat\PerawatTindakanController::class, 'show'])->name('tindakan-terapi.show');
-    Route::get('/tindakan-terapi/{id}/edit', [App\Http\Controllers\perawat\PerawatTindakanController::class, 'edit'])->name('tindakan-terapi.edit');
-    Route::put('/tindakan-terapi/{id}', [App\Http\Controllers\perawat\PerawatTindakanController::class, 'update'])->name('tindakan-terapi.update');
-    Route::delete('/tindakan-terapi/{id}', [App\Http\Controllers\perawat\PerawatTindakanController::class, 'destroy'])->name('tindakan-terapi.destroy');
+    // Detail Tindakan Terapi (Perawat bisa CUD)
+    Route::post('/rekam-medis/{id}/tindakan', [App\Http\Controllers\PerawatController::class, 'tambahTindakan'])->name('rekam-medis.tindakan.store');
+    Route::put('/rekam-medis/{id}/tindakan/{idDetail}', [App\Http\Controllers\PerawatController::class, 'updateTindakan'])->name('rekam-medis.tindakan.update');
+    Route::delete('/rekam-medis/{id}/tindakan/{idDetail}', [App\Http\Controllers\PerawatController::class, 'deleteTindakan'])->name('rekam-medis.tindakan.delete');
 });
 
 // dokter router

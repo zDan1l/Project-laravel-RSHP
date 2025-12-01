@@ -17,6 +17,8 @@ class DetailRekamMedis extends Model
         'idrekam_medis',
         'idkode_tindakan_terapi',
         'detail',
+        'petugas_input',
+        'tipe_petugas',
     ];
 
     // Relationship to RekamMedis

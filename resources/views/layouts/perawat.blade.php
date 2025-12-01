@@ -13,8 +13,8 @@
 
     <style>
         :root {
-            --primary-color: #2563eb;
-            --secondary-color: #1e40af;
+            --primary-color: #10b981;
+            --secondary-color: #059669;
             --sidebar-bg: #1f2937;
             --sidebar-hover: #374151;
             --text-light: #9ca3af;
