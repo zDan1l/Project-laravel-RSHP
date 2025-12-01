@@ -4,9 +4,7 @@ namespace App\Http\Controllers\resepsionis;
 
 use App\Models\Pet;
 use App\Models\Pemilik;
-use App\Models\JenisHewan;
-use App\Helpers\StringHelper;
-use App\Helpers\ValidationHelper;
+use App\Models\Ras;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
@@ -15,47 +13,44 @@ class ResepsionisPetController extends Controller
 {
     public function index()
     {
-        $pets = Pet::with(['pemilik.user', 'jenisHewan'])->orderBy('idpet', 'desc')->get();
+        $pets = Pet::with(['pemilik.user', 'ras.jenisHewan'])->orderBy('idpet', 'desc')->get();
         return view('resepsionis.pet.index', compact('pets'));
     }
 
     public function create()
     {
-        $pemiliks = Pemilik::with('user')->orderBy('idpemilik')->get();
-        $jenisHewans = JenisHewan::orderBy('nama_jenis')->get();
-        return view('resepsionis.pet.create', compact('pemiliks', 'jenisHewans'));
+        $pemiliks = Pemilik::with('user')->orderBy('idpemilik', 'desc')->get();
+        $rasHewans = Ras::with('jenisHewan')->orderBy('nama_ras')->get();
+        return view('resepsionis.pet.create', compact('pemiliks', 'rasHewans'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama_pet' => 'required|string|max:100',
-            'idpemilik' => 'required|exists:pemilik,idpemilik',
-            'idjenis_hewan' => 'required|exists:jenis_hewan,idjenis_hewan',
-            'tanggal_lahir' => 'nullable|date',
+            'nama' => 'required|string|max:100',
+            'idras_hewan' => 'required|exists:ras_hewan,idras_hewan',
             'jenis_kelamin' => 'required|in:Jantan,Betina',
-            'warna' => 'nullable|string|max:50',
-            'ciri_khusus' => 'nullable|string',
+            'tanggal_lahir' => 'nullable|date',
+            'warna_tanda' => 'nullable|string|max:50',
+            'idpemilik' => 'required|exists:pemilik,idpemilik',
         ], [
-            'nama_pet.required' => 'Nama pet harus diisi',
-            'nama_pet.max' => 'Nama pet maksimal 100 karakter',
-            'idpemilik.required' => 'Pemilik harus dipilih',
-            'idpemilik.exists' => 'Pemilik tidak ditemukan',
-            'idjenis_hewan.required' => 'Jenis hewan harus dipilih',
-            'idjenis_hewan.exists' => 'Jenis hewan tidak ditemukan',
-            'tanggal_lahir.date' => 'Format tanggal lahir tidak valid',
+            'nama.required' => 'Nama pet harus diisi',
+            'nama.max' => 'Nama pet maksimal 100 karakter',
+            'idras_hewan.required' => 'Ras harus dipilih',
+            'idras_hewan.exists' => 'Ras tidak valid',
             'jenis_kelamin.required' => 'Jenis kelamin harus dipilih',
             'jenis_kelamin.in' => 'Jenis kelamin harus Jantan atau Betina',
+            'tanggal_lahir.date' => 'Format tanggal lahir tidak valid',
+            'idpemilik.required' => 'Pemilik harus dipilih',
+            'idpemilik.exists' => 'Pemilik tidak valid',
         ]);
 
         try {
             DB::beginTransaction();
 
-            // Format nama pet
-            $validated['nama_pet'] = StringHelper::formatName($validated['nama_pet']);
-            
-            // Sanitize input
-            $validated = ValidationHelper::sanitizeInput($validated);
+            // Generate ID manually since idpet is not auto-increment
+            $lastId = Pet::max('idpet');
+            $validated['idpet'] = $lastId ? $lastId + 1 : 1;
 
             Pet::create($validated);
 
@@ -75,10 +70,10 @@ class ResepsionisPetController extends Controller
 
     public function edit($id)
     {
-        $pet = Pet::findOrFail($id);
-        $pemiliks = Pemilik::with('user')->orderBy('idpemilik')->get();
-        $jenisHewans = JenisHewan::orderBy('nama_jenis')->get();
-        return view('resepsionis.pet.edit', compact('pet', 'pemiliks', 'jenisHewans'));
+        $pet = Pet::with(['pemilik.user', 'ras'])->findOrFail($id);
+        $pemiliks = Pemilik::with('user')->orderBy('idpemilik', 'desc')->get();
+        $rasHewans = Ras::with('jenisHewan')->orderBy('nama_ras')->get();
+        return view('resepsionis.pet.edit', compact('pet', 'pemiliks', 'rasHewans'));
     }
 
     public function update(Request $request, $id)
@@ -86,33 +81,26 @@ class ResepsionisPetController extends Controller
         $pet = Pet::findOrFail($id);
 
         $validated = $request->validate([
-            'nama_pet' => 'required|string|max:100',
-            'idpemilik' => 'required|exists:pemilik,idpemilik',
-            'idjenis_hewan' => 'required|exists:jenis_hewan,idjenis_hewan',
-            'tanggal_lahir' => 'nullable|date',
+            'nama' => 'required|string|max:100',
+            'idras_hewan' => 'required|exists:ras_hewan,idras_hewan',
             'jenis_kelamin' => 'required|in:Jantan,Betina',
-            'warna' => 'nullable|string|max:50',
-            'ciri_khusus' => 'nullable|string',
+            'tanggal_lahir' => 'nullable|date',
+            'warna_tanda' => 'nullable|string|max:50',
+            'idpemilik' => 'required|exists:pemilik,idpemilik',
         ], [
-            'nama_pet.required' => 'Nama pet harus diisi',
-            'nama_pet.max' => 'Nama pet maksimal 100 karakter',
-            'idpemilik.required' => 'Pemilik harus dipilih',
-            'idpemilik.exists' => 'Pemilik tidak ditemukan',
-            'idjenis_hewan.required' => 'Jenis hewan harus dipilih',
-            'idjenis_hewan.exists' => 'Jenis hewan tidak ditemukan',
-            'tanggal_lahir.date' => 'Format tanggal lahir tidak valid',
+            'nama.required' => 'Nama pet harus diisi',
+            'nama.max' => 'Nama pet maksimal 100 karakter',
+            'idras_hewan.required' => 'Ras harus dipilih',
+            'idras_hewan.exists' => 'Ras tidak valid',
             'jenis_kelamin.required' => 'Jenis kelamin harus dipilih',
             'jenis_kelamin.in' => 'Jenis kelamin harus Jantan atau Betina',
+            'tanggal_lahir.date' => 'Format tanggal lahir tidak valid',
+            'idpemilik.required' => 'Pemilik harus dipilih',
+            'idpemilik.exists' => 'Pemilik tidak valid',
         ]);
 
         try {
             DB::beginTransaction();
-
-            // Format nama pet
-            $validated['nama_pet'] = StringHelper::formatName($validated['nama_pet']);
-            
-            // Sanitize input
-            $validated = ValidationHelper::sanitizeInput($validated);
 
             $pet->update($validated);
 
@@ -132,7 +120,7 @@ class ResepsionisPetController extends Controller
 
     public function show($id)
     {
-        $pet = Pet::with(['pemilik.user', 'pemilik.pet.jenisHewan', 'jenisHewan'])->findOrFail($id);
+        $pet = Pet::with(['pemilik.user', 'pemilik.pet.ras.jenisHewan', 'ras.jenisHewan'])->findOrFail($id);
         return view('resepsionis.pet.show', compact('pet'));
     }
 

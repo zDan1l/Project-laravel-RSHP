@@ -39,9 +39,25 @@
                     <form action="{{ route('resepsionis.pemilik.store') }}" method="POST">
                         @csrf
                         
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            <strong>Info:</strong> Nama pemilik akan menggunakan nama dari akun yang sedang login ({{ auth()->user()->nama }})
+                        <div class="mb-3">
+                            <label for="iduser" class="form-label">
+                                User <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select @error('iduser') is-invalid @enderror" 
+                                    id="iduser" 
+                                    name="iduser" 
+                                    required>
+                                <option value="">-- Pilih User --</option>
+                                @foreach($users as $user)
+                                    <option value="{{ $user->iduser }}" {{ old('iduser') == $user->iduser ? 'selected' : '' }}>
+                                        {{ $user->nama }} ({{ $user->email }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('iduser')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="text-muted">Pilih user yang akan didaftarkan sebagai pemilik hewan</small>
                         </div>
 
                         <div class="mb-3">

@@ -41,9 +41,24 @@
                         @csrf
                         @method('PUT')
                         
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            <strong>Info:</strong> Nama pemilik: <strong>{{ $pemilik->user->nama }}</strong> (tidak dapat diubah)
+                        <div class="mb-3">
+                            <label for="iduser" class="form-label">
+                                User <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select @error('iduser') is-invalid @enderror" 
+                                    id="iduser" 
+                                    name="iduser" 
+                                    required>
+                                <option value="">-- Pilih User --</option>
+                                @foreach($users as $user)
+                                    <option value="{{ $user->iduser }}" {{ old('iduser', $pemilik->iduser) == $user->iduser ? 'selected' : '' }}>
+                                        {{ $user->nama }} ({{ $user->email }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('iduser')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <div class="mb-3">
@@ -55,21 +70,12 @@
                                    id="no_wa" 
                                    name="no_wa" 
                                    value="{{ old('no_wa', $pemilik->no_wa) }}"
-                                   placeholder="Contoh: 08123456789"
+                                   placeholder="08xxxxxxxxxx"
                                    required>
                             @error('no_wa')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            <small class="form-text text-muted">Format: 08xxxxxxxxxx atau +628xxxxxxxxxx</small>
-                        </div> 
-                                   id="email" 
-                                   name="email" 
-                                   value="{{ old('email', $pemilik->email) }}"
-                                   placeholder="contoh@email.com">
-                            @error('email')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                            <small class="form-text text-muted">Opsional - untuk pengiriman notifikasi</small>
+                            <small class="form-text text-muted">Format: 08xxxxxxxxxx atau +62xxxxxxxxxx</small>
                         </div>
 
                         <div class="mb-4">

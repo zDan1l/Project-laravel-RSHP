@@ -97,6 +97,15 @@
                 </a>
             </li>
 
+            <!-- Ras Hewan -->
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.ras.*') ? 'active' : '' }}" 
+                   href="{{ route('admin.ras.index') }}">
+                    <i class="fas fa-dna"></i>
+                    <span>Ras Hewan</span>
+                </a>
+            </li>
+
             <!-- Divider -->
             <li class="nav-item">
                 <hr class="sidebar-divider" style="border-color: #374151; margin: 0.5rem 1rem;">

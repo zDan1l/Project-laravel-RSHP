@@ -40,17 +40,17 @@
                         @csrf
                         
                         <div class="mb-3">
-                            <label for="nama_pet" class="form-label">
+                            <label for="nama" class="form-label">
                                 Nama Pet <span class="text-danger">*</span>
                             </label>
                             <input type="text" 
-                                   class="form-control @error('nama_pet') is-invalid @enderror" 
-                                   id="nama_pet" 
-                                   name="nama_pet" 
-                                   value="{{ old('nama_pet') }}" 
+                                   class="form-control @error('nama') is-invalid @enderror" 
+                                   id="nama" 
+                                   name="nama" 
+                                   value="{{ old('nama') }}" 
                                    placeholder="Masukkan nama pet"
                                    required>
-                            @error('nama_pet')
+                            @error('nama')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -82,21 +82,21 @@
                         </div>
 
                         <div class="mb-3">
-                            <label for="idjenis_hewan" class="form-label">
-                                Jenis Hewan <span class="text-danger">*</span>
+                            <label for="idras_hewan" class="form-label">
+                                Ras Hewan <span class="text-danger">*</span>
                             </label>
-                            <select class="form-select @error('idjenis_hewan') is-invalid @enderror" 
-                                    id="idjenis_hewan" 
-                                    name="idjenis_hewan" 
+                            <select class="form-select @error('idras_hewan') is-invalid @enderror" 
+                                    id="idras_hewan" 
+                                    name="idras_hewan" 
                                     required>
-                                <option value="">-- Pilih Jenis Hewan --</option>
-                                @foreach($jenisHewans as $jenis)
-                                    <option value="{{ $jenis->idjenis_hewan }}" {{ old('idjenis_hewan') == $jenis->idjenis_hewan ? 'selected' : '' }}>
-                                        {{ $jenis->nama_jenis }}
+                                <option value="">-- Pilih Ras Hewan --</option>
+                                @foreach($rasHewans as $ras)
+                                    <option value="{{ $ras->idras_hewan }}" {{ old('idras_hewan') == $ras->idras_hewan ? 'selected' : '' }}>
+                                        {{ $ras->nama_ras }} ({{ $ras->jenisHewan->nama_jenis_hewan ?? '-' }})
                                     </option>
                                 @endforeach
                             </select>
-                            @error('idjenis_hewan')
+                            @error('idras_hewan')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -134,31 +134,17 @@
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="warna" class="form-label">
-                                Warna <span class="text-muted">(Opsional)</span>
+                        <div class="mb-4">
+                            <label for="warna_tanda" class="form-label">
+                                Warna/Tanda <span class="text-muted">(Opsional)</span>
                             </label>
                             <input type="text" 
-                                   class="form-control @error('warna') is-invalid @enderror" 
-                                   id="warna" 
-                                   name="warna" 
-                                   value="{{ old('warna') }}" 
-                                   placeholder="Contoh: Putih, Coklat, Belang">
-                            @error('warna')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="ciri_khusus" class="form-label">
-                                Ciri Khusus <span class="text-muted">(Opsional)</span>
-                            </label>
-                            <textarea class="form-control @error('ciri_khusus') is-invalid @enderror" 
-                                      id="ciri_khusus" 
-                                      name="ciri_khusus" 
-                                      rows="3" 
-                                      placeholder="Contoh: Tanda lahir di kaki kiri, mata biru, dll">{{ old('ciri_khusus') }}</textarea>
-                            @error('ciri_khusus')
+                                   class="form-control @error('warna_tanda') is-invalid @enderror" 
+                                   id="warna_tanda" 
+                                   name="warna_tanda" 
+                                   value="{{ old('warna_tanda') }}" 
+                                   placeholder="Contoh: Putih, Coklat, Belang hitam putih">
+                            @error('warna_tanda')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>

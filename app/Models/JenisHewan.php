@@ -12,4 +12,9 @@ class JenisHewan extends Model
     protected $keyType = 'string';
     public $timestamps = false;
     protected $guarded = [];
+
+    public function ras()
+    {
+        return $this->hasMany(Ras::class, 'idjenis_hewan', 'idjenis_hewan');
+    }
 }

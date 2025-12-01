@@ -17,7 +17,7 @@ class ResepsionisTemuController extends Controller
     public function index()
     {
         // Ambil data temu dokter hari ini dengan relasi
-        $temuDokter = TemuDokter::with(['pet.pemilik', 'pet.jenisHewan', 'roleUser.user', 'roleUser.role'])
+        $temuDokter = TemuDokter::with(['pet.pemilik.user', 'pet.ras.jenisHewan', 'roleUser.user', 'roleUser.role'])
             ->whereDate('waktu_daftar', today())
             ->orderBy('no_urut', 'asc')
             ->get();
@@ -39,7 +39,7 @@ class ResepsionisTemuController extends Controller
     public function create()
     {
         // Ambil data pet dan dokter untuk form
-        $pets = Pet::with(['pemilik', 'jenisHewan'])->get();
+        $pets = Pet::with(['pemilik.user', 'ras.jenisHewan'])->get();
         
         // Ambil dokter (user dengan role dokter)
         $dokters = UserRole::with(['user', 'role'])
@@ -59,7 +59,7 @@ class ResepsionisTemuController extends Controller
     {
         $validated = $request->validate([
             'idpet' => 'required|exists:pet,idpet',
-            'idrole_user' => 'required|exists:user_role,idrole_user',
+            'idrole_user' => 'required|exists:role_user,idrole_user',
         ]);
 
         try {
@@ -98,7 +98,7 @@ class ResepsionisTemuController extends Controller
      */
     public function show($id)
     {
-        $temuDokter = TemuDokter::with(['pet.pemilik', 'pet.jenisHewan', 'roleUser.user', 'roleUser.role'])
+        $temuDokter = TemuDokter::with(['pet.pemilik.user', 'pet.ras.jenisHewan', 'roleUser.user', 'roleUser.role'])
             ->findOrFail($id);
 
         return view('resepsionis.temu-dokter.show', compact('temuDokter'));

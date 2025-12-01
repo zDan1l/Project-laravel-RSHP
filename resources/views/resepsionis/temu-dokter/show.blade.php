@@ -61,7 +61,7 @@
                     <h6 class="fw-bold mb-3">Informasi Pemilik</h6>
                     <div class="row mb-3">
                         <div class="col-md-4 fw-semibold">Nama Pemilik:</div>
-                        <div class="col-md-8">{{ $temuDokter->pet->pemilik->nama ?? '-' }}</div>
+                        <div class="col-md-8">{{ $temuDokter->pet->pemilik->user->nama ?? '-' }}</div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-4 fw-semibold">No. WhatsApp:</div>
@@ -80,8 +80,12 @@
                         <div class="col-md-8">{{ $temuDokter->pet->nama ?? '-' }}</div>
                     </div>
                     <div class="row mb-3">
+                        <div class="col-md-4 fw-semibold">Ras:</div>
+                        <div class="col-md-8">{{ $temuDokter->pet->ras->nama_ras ?? '-' }}</div>
+                    </div>
+                    <div class="row mb-3">
                         <div class="col-md-4 fw-semibold">Jenis Hewan:</div>
-                        <div class="col-md-8">{{ $temuDokter->pet->jenisHewan->nama ?? '-' }}</div>
+                        <div class="col-md-8">{{ $temuDokter->pet->ras->jenisHewan->nama_jenis_hewan ?? '-' }}</div>
                     </div>
 
                     <hr>

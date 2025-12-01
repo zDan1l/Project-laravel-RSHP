@@ -13,6 +13,7 @@ use App\Http\Controllers\admin\UserRoleController;
 use App\Http\Controllers\admin\JenisHewanController;
 use App\Http\Controllers\admin\KategoriKlinisController;
 use App\Http\Controllers\admin\KodeTindakanTerapiController;
+use App\Http\Controllers\admin\RasController;
 use App\Http\Controllers\dokter\DokterRekamMedisController;
 use App\Http\Controllers\resepsionis\ResepsionisPetController;
 use App\Http\Controllers\resepsionis\ResepsionisTemuController;
@@ -102,6 +103,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'isAdministrator'])-
     Route::get('/kode-tindakan/{id}/edit', [KodeTindakanTerapiController::class, 'edit'])->name('kodentindakan.edit');
     Route::put('/kode-tindakan/{id}', [KodeTindakanTerapiController::class, 'update'])->name('kodentindakan.update');
     Route::delete('/kode-tindakan/{id}', [KodeTindakanTerapiController::class, 'destroy'])->name('kodentindakan.destroy');
+
+    // Ras Hewan
+    Route::get('/ras', [RasController::class, 'index'])->name('ras.index');
+    Route::get('/ras/create', [RasController::class, 'create'])->name('ras.create');
+    Route::post('/ras', [RasController::class, 'store'])->name('ras.store');
+    Route::get('/ras/{id}/edit', [RasController::class, 'edit'])->name('ras.edit');
+    Route::put('/ras/{id}', [RasController::class, 'update'])->name('ras.update');
+    Route::delete('/ras/{id}', [RasController::class, 'destroy'])->name('ras.destroy');
 });
 
 // resepsionis routes

@@ -30,9 +30,9 @@
                 </div>
                 <div class="card-body text-center">
                     <div class="pet-avatar-large mx-auto mb-3">
-                        {{ strtoupper(substr($pet->nama_pet, 0, 2)) }}
+                        {{ strtoupper(substr($pet->nama, 0, 2)) }}
                     </div>
-                    <h3 class="mb-1">{{ $pet->nama_pet }}</h3>
+                    <h3 class="mb-1">{{ $pet->nama }}</h3>
                     <p class="text-muted mb-0">
                         <i class="fas fa-id-badge me-1"></i>ID: {{ $pet->idpet }}
                     </p>
@@ -49,16 +49,23 @@
                 <div class="card-body border-top">
                     <div class="info-item mb-3">
                         <label class="text-muted small mb-1">
-                            <i class="fas fa-tag me-2"></i>Jenis Hewan
+                            <i class="fas fa-dna me-2"></i>Ras Hewan
                         </label>
-                        <div class="fw-semibold">{{ $pet->jenisHewan->nama_jenis_hewan ?? 'N/A' }}</div>
+                        <div class="fw-semibold">{{ $pet->ras->nama_ras ?? 'N/A' }}</div>
                     </div>
 
                     <div class="info-item mb-3">
                         <label class="text-muted small mb-1">
-                            <i class="fas fa-palette me-2"></i>Warna
+                            <i class="fas fa-tag me-2"></i>Jenis Hewan
                         </label>
-                        <div class="fw-semibold">{{ $pet->warna ?: '-' }}</div>
+                        <div class="fw-semibold">{{ $pet->ras->jenisHewan->nama_jenis_hewan ?? 'N/A' }}</div>
+                    </div>
+
+                    <div class="info-item mb-3">
+                        <label class="text-muted small mb-1">
+                            <i class="fas fa-palette me-2"></i>Warna/Tanda
+                        </label>
+                        <div class="fw-semibold">{{ $pet->warna_tanda ?: '-' }}</div>
                     </div>
 
                     <div class="info-item mb-3">
@@ -75,13 +82,6 @@
                                 -
                             @endif
                         </div>
-                    </div>
-
-                    <div class="info-item">
-                        <label class="text-muted small mb-1">
-                            <i class="fas fa-info-circle me-2"></i>Ciri Khusus
-                        </label>
-                        <div class="fw-semibold">{{ $pet->ciri_khusus ?: '-' }}</div>
                     </div>
                 </div>
             </div>
@@ -183,13 +183,13 @@
                                         <div class="card-body">
                                             <div class="d-flex align-items-start">
                                                 <div class="pet-avatar-small me-3">
-                                                    {{ strtoupper(substr($otherPet->nama_pet, 0, 1)) }}
+                                                    {{ strtoupper(substr($otherPet->nama, 0, 1)) }}
                                                 </div>
                                                 <div class="flex-grow-1">
-                                                    <h6 class="mb-1">{{ $otherPet->nama_pet }}</h6>
+                                                    <h6 class="mb-1">{{ $otherPet->nama }}</h6>
                                                     <div class="small text-muted mb-2">
                                                         <span class="badge bg-light text-dark border">
-                                                            {{ $otherPet->jenisHewan->nama_jenis_hewan ?? 'N/A' }}
+                                                            {{ $otherPet->ras->nama_ras ?? 'N/A' }}
                                                         </span>
                                                         @if($otherPet->jenis_kelamin == 'Jantan')
                                                             <span class="badge bg-primary">

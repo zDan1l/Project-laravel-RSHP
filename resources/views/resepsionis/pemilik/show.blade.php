@@ -77,14 +77,14 @@
                                         <div class="card-body">
                                             <div class="d-flex align-items-start">
                                                 <div class="pet-avatar me-3">
-                                                    {{ strtoupper(substr($pet->nama_pet, 0, 1)) }}
+                                                    {{ strtoupper(substr($pet->nama, 0, 1)) }}
                                                 </div>
                                                 <div class="flex-grow-1">
-                                                    <h6 class="mb-1">{{ $pet->nama_pet }}</h6>
+                                                    <h6 class="mb-1">{{ $pet->nama }}</h6>
                                                     <div class="small text-muted mb-2">
                                                         <span class="badge bg-light text-dark border">
-                                                            <i class="fas fa-tag me-1"></i>
-                                                            {{ $pet->jenisHewan->nama_jenis_hewan ?? 'N/A' }}
+                                                            <i class="fas fa-dna me-1"></i>
+                                                            {{ $pet->ras->nama_ras ?? 'N/A' }}
                                                         </span>
                                                         @if($pet->jenis_kelamin == 'Jantan')
                                                             <span class="badge bg-primary">
@@ -96,10 +96,10 @@
                                                             </span>
                                                         @endif
                                                     </div>
-                                                    @if($pet->warna)
+                                                    @if($pet->warna_tanda)
                                                         <div class="small mb-1">
                                                             <i class="fas fa-palette me-1 text-muted"></i>
-                                                            <span class="text-muted">Warna:</span> {{ $pet->warna }}
+                                                            <span class="text-muted">Warna:</span> {{ $pet->warna_tanda }}
                                                         </div>
                                                     @endif
                                                     @if($pet->tanggal_lahir)

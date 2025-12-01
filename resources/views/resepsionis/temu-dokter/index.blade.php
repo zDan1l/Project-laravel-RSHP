@@ -129,12 +129,12 @@
                                 <span class="badge bg-primary fs-6">#{{ str_pad($item->no_urut, 3, '0', STR_PAD_LEFT) }}</span>
                             </td>
                             <td>
-                                <div class="fw-semibold">{{ $item->pet->pemilik->nama ?? '-' }}</div>
+                                <div class="fw-semibold">{{ $item->pet->pemilik->user->nama ?? '-' }}</div>
                                 <small class="text-muted">{{ $item->pet->pemilik->no_wa ?? '-' }}</small>
                             </td>
                             <td>
                                 <div>{{ $item->pet->nama ?? '-' }}</div>
-                                <small class="text-muted">{{ $item->pet->jenisHewan->nama ?? '-' }}</small>
+                                <small class="text-muted">{{ $item->pet->ras->nama_ras ?? '-' }}</small>
                             </td>
                             <td>{{ $item->roleUser->user->nama ?? '-' }}</td>
                             <td>

@@ -55,7 +55,7 @@
                                     <th width="5%">No</th>
                                     <th width="20%">Nama Pet</th>
                                     <th width="20%">Pemilik</th>
-                                    <th width="15%">Jenis Hewan</th>
+                                    <th width="15%">Ras/Jenis</th>
                                     <th width="10%">Kelamin</th>
                                     <th width="15%">Warna</th>
                                     <th width="15%">Actions</th>
@@ -70,7 +70,7 @@
                                             <div class="pet-avatar me-2">
                                                 <i class="fas fa-paw"></i>
                                             </div>
-                                            <strong>{{ $pet->nama_pet }}</strong>
+                                            <strong>{{ $pet->nama }}</strong>
                                         </div>
                                     </td>
                                     <td>
@@ -83,8 +83,9 @@
                                         @endif
                                     </td>
                                     <td>
-                                        @if($pet->jenisHewan)
-                                            <span class="badge bg-info">{{ $pet->jenisHewan->nama_jenis }}</span>
+                                        @if($pet->ras)
+                                            <span class="badge bg-info">{{ $pet->ras->nama_ras }}</span>
+                                            <br><small class="text-muted">{{ $pet->ras->jenisHewan->nama_jenis_hewan ?? '-' }}</small>
                                         @else
                                             <span class="text-muted">-</span>
                                         @endif
@@ -103,7 +104,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        {{ $pet->warna ?? '-' }}
+                                        {{ $pet->warna_tanda ?? '-' }}
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm">
