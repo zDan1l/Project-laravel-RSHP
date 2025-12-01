@@ -8,9 +8,12 @@ class TemuDokter extends Model
 {
     protected $table = 'temu_dokter';
     protected $primaryKey = 'idreservasi_dokter';
+    public $incrementing = false;
+    protected $keyType = 'string';
     public $timestamps = false;
 
     protected $fillable = [
+        'idreservasi_dokter',
         'no_urut',
         'waktu_daftar',
         'status',
@@ -43,6 +46,6 @@ class TemuDokter extends Model
      */
     public function rekamMedis()
     {
-        return $this->hasOne(RekamMedis::class, 'idreservsi_dokter', 'idreservasi_dokter');
+        return $this->hasOne(RekamMedis::class, 'idreservasi_dokter', 'idreservasi_dokter');
     }
 }

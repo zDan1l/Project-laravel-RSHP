@@ -178,15 +178,22 @@ Route::prefix('dokter')->name('dokter.')->middleware(['auth', 'isDokter'])->grou
         return view('dokter.dashboard.index');
     })->name('dashboard');
     
+    // Antrian Pasien
+    Route::get('/antrian', [DokterRekamMedisController::class, 'antrian'])->name('antrian.index');
+    Route::post('/antrian/{id}/mulai', [DokterRekamMedisController::class, 'mulaiPemeriksaan'])->name('antrian.mulai');
+    
     // Rekam Medis
     Route::get('/rekam-medis', [DokterRekamMedisController::class, 'index'])->name('rekam-medis.index');
+    Route::get('/rekam-medis/create/{idTemuDokter}', [DokterRekamMedisController::class, 'create'])->name('rekam-medis.create');
+    Route::post('/rekam-medis', [DokterRekamMedisController::class, 'store'])->name('rekam-medis.store');
     Route::get('/rekam-medis/{id}', [DokterRekamMedisController::class, 'show'])->name('rekam-medis.show');
+    Route::get('/rekam-medis/{id}/edit', [DokterRekamMedisController::class, 'edit'])->name('rekam-medis.edit');
+    Route::put('/rekam-medis/{id}', [DokterRekamMedisController::class, 'update'])->name('rekam-medis.update');
     
     // Detail Rekam Medis (Tindakan Terapi)
     Route::post('/rekam-medis/{id}/detail', [DokterRekamMedisController::class, 'storeDetail'])->name('rekam-medis.detail.store');
     Route::put('/rekam-medis/{id}/detail/{idDetail}', [DokterRekamMedisController::class, 'updateDetail'])->name('rekam-medis.detail.update');
     Route::delete('/rekam-medis/{id}/detail/{idDetail}', [DokterRekamMedisController::class, 'deleteDetail'])->name('rekam-medis.detail.delete');
-    
 });
 
 

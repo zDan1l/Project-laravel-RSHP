@@ -145,7 +145,8 @@ class LoginController extends Controller
             'user_email' => $user->email,
             'user_role' => $user->userRole[0]->idrole ?? 'user',
             'user_role_name' => $namaRole->nama_role ?? 'user',
-            'user_status' => $user->userRole[0]->status ?? 'active'
+            'user_status' => $user->userRole[0]->status ?? 'active',
+            'idrole_user' => $user->userRole[0]->idrole_user ?? null,
         ]);
         
         // Gunakan redirectTo() untuk multirole redirect

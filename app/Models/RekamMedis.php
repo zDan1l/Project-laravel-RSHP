@@ -8,14 +8,17 @@ class RekamMedis extends Model
 {
     protected $table = 'rekam_medis';
     protected $primaryKey = 'idrekam_medis';
+    public $incrementing = false;
+    protected $keyType = 'string';
     public $timestamps = false;
 
     protected $fillable = [
+        'idrekam_medis',
         'created_at',
         'anamnesa',
         'temuan_klinis',
         'diagnosa',
-        'idreservsi_dokter', // Note: typo in schema, using as-is
+        'idreservasi_dokter',
         'dokter_pemeriksa',
     ];
 
@@ -23,10 +26,10 @@ class RekamMedis extends Model
         'created_at' => 'datetime',
     ];
 
-    // Relationship to TemuDokter (via idreservsi_dokter)
+    // Relationship to TemuDokter
     public function temuDokter()
     {
-        return $this->belongsTo(TemuDokter::class, 'idreservsi_dokter', 'idreservasi_dokter');
+        return $this->belongsTo(TemuDokter::class, 'idreservasi_dokter', 'idreservasi_dokter');
     }
 
     // Relationship to DetailRekamMedis

@@ -24,12 +24,27 @@
                 <hr class="sidebar-divider" style="border-color: #374151; margin: 0.5rem 1rem;">
             </li>
 
+            <!-- Antrian Section -->
+            <li class="nav-item">
+                <div class="nav-section-title" style="color: #9ca3af; font-size: 0.75rem; padding: 0.5rem 1rem; text-transform: uppercase; font-weight: 600;">
+                    <span>Antrian</span>
+                </div>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('dokter.antrian.*') ? 'active' : '' }}" 
+                   href="{{ route('dokter.antrian.index') }}">
+                    <i class="fas fa-users"></i>
+                    <span>Antrian Pasien</span>
+                </a>
+            </li>
+
             <!-- Divider -->
             <li class="nav-item">
                 <hr class="sidebar-divider" style="border-color: #374151; margin: 0.5rem 1rem;">
             </li>
 
-            <!-- Pet Management -->
+            <!-- Medis Section -->
             <li class="nav-item">
                 <div class="nav-section-title" style="color: #9ca3af; font-size: 0.75rem; padding: 0.5rem 1rem; text-transform: uppercase; font-weight: 600;">
                     <span>Medis</span>
@@ -39,7 +54,7 @@
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('dokter.rekam-medis.*') ? 'active' : '' }}" 
                    href="{{ route('dokter.rekam-medis.index') }}">
-                    <i class="fas fa-user"></i>
+                    <i class="fas fa-file-medical"></i>
                     <span>Rekam Medis</span>
                 </a>
             </li>
