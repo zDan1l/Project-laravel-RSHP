@@ -41,56 +41,70 @@
                         @csrf
                         @method('PUT')
                         
-                        <div class="mb-3">
-                            <label for="iduser" class="form-label">
-                                User <span class="text-danger">*</span>
-                            </label>
-                            <select class="form-select @error('iduser') is-invalid @enderror" 
-                                    id="iduser" 
-                                    name="iduser" 
-                                    required>
-                                <option value="">-- Pilih User --</option>
-                                @foreach($users as $user)
-                                    <option value="{{ $user->iduser }}" {{ old('iduser', $pemilik->iduser) == $user->iduser ? 'selected' : '' }}>
-                                        {{ $user->nama }} ({{ $user->email }})
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('iduser')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="no_wa" class="form-label">
-                                No. WhatsApp <span class="text-danger">*</span>
-                            </label>
-                            <input type="text" 
-                                   class="form-control @error('no_wa') is-invalid @enderror" 
-                                   id="no_wa" 
-                                   name="no_wa" 
-                                   value="{{ old('no_wa', $pemilik->no_wa) }}"
-                                   placeholder="08xxxxxxxxxx"
-                                   required>
-                            @error('no_wa')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                            <small class="form-text text-muted">Format: 08xxxxxxxxxx atau +62xxxxxxxxxx</small>
-                        </div>
-
+                        <!-- Data User Section (Read-only) -->
                         <div class="mb-4">
-                            <label for="alamat" class="form-label">
-                                Alamat <span class="text-danger">*</span>
-                            </label>
-                            <textarea class="form-control @error('alamat') is-invalid @enderror" 
-                                      id="alamat" 
-                                      name="alamat" 
-                                      rows="3" 
-                                      placeholder="Masukkan alamat lengkap"
-                                      required>{{ old('alamat', $pemilik->alamat) }}</textarea>
-                            @error('alamat')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <h6 class="text-primary border-bottom pb-2 mb-3">
+                                <i class="fas fa-user me-2"></i>Data Akun User
+                            </h6>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Nama Lengkap</label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           value="{{ $pemilik->user->nama }}" 
+                                           disabled>
+                                    <small class="text-muted">Data user tidak dapat diubah</small>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           value="{{ $pemilik->user->email }}" 
+                                           disabled>
+                                    <small class="text-muted">Data user tidak dapat diubah</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Data Pemilik Section (Editable) -->
+                        <div class="mb-4">
+                            <h6 class="text-primary border-bottom pb-2 mb-3">
+                                <i class="fas fa-address-card me-2"></i>Data Pemilik Hewan
+                            </h6>
+
+                            <div class="mb-3">
+                                <label for="no_wa" class="form-label">
+                                    No. WhatsApp <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" 
+                                       class="form-control @error('no_wa') is-invalid @enderror" 
+                                       id="no_wa" 
+                                       name="no_wa" 
+                                       value="{{ old('no_wa', $pemilik->no_wa) }}"
+                                       placeholder="08xxxxxxxxxx"
+                                       required>
+                                @error('no_wa')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="form-text text-muted">Format: 08xxxxxxxxxx atau +62xxxxxxxxxx</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="alamat" class="form-label">
+                                    Alamat <span class="text-danger">*</span>
+                                </label>
+                                <textarea class="form-control @error('alamat') is-invalid @enderror" 
+                                          id="alamat" 
+                                          name="alamat" 
+                                          rows="4" 
+                                          placeholder="Masukkan alamat lengkap"
+                                          required>{{ old('alamat', $pemilik->alamat) }}</textarea>
+                                @error('alamat')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
 
                         <div class="d-flex gap-2 justify-content-end">

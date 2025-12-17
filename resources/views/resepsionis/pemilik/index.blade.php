@@ -53,9 +53,11 @@
                             <thead class="table-light">
                                 <tr>
                                     <th width="5%">No</th>
-                                    <th width="25%">Nama Pemilik</th>
-                                    <th width="15%">No. Telepon</th>
-                                    <th width="25%">Alamat</th>
+                                    <th width="20%">Nama Pemilik</th>
+                                    <th width="20%">Email</th>
+                                    <th width="15%">No. WhatsApp</th>
+                                    <th width="20%">Alamat</th>
+                                    <th width="10%">Role</th>
                                     <th width="10%">Actions</th>
                                 </tr>
                             </thead>
@@ -72,11 +74,19 @@
                                         </div>
                                     </td>
                                     <td>
+                                        <small>{{ $pemilik->user->email ?? 'N/A' }}</small>
+                                    </td>
+                                    <td>
                                         <i class="fas fa-phone text-success me-1"></i>
                                         {{ $pemilik->no_wa }}
                                     </td>
                                     <td>
-                                        <small>{{ Str::limit($pemilik->alamat, 50) }}</small>
+                                        <small>{{ Str::limit($pemilik->alamat, 40) }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            <i class="fas fa-user-tag me-1"></i>Pemilik
+                                        </span>
                                     </td>
                                     <td>
                                         <div class="btn-group btn-group-sm">

@@ -13,14 +13,9 @@
                     <p class="text-muted mb-0">Informasi lengkap rekam medis pasien</p>
                 </div>
                 <div>
-                    <a href="{{ route('dokter.rekam-medis.index') }}" class="btn btn-secondary me-2">
+                    <a href="{{ route('dokter.rekam-medis.index') }}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left me-2"></i>Kembali
                     </a>
-                    @if($rekamMedis->dokter_pemeriksa == session('user_id'))
-                    <a href="{{ route('dokter.rekam-medis.edit', $rekamMedis->idrekam_medis) }}" class="btn btn-warning">
-                        <i class="fas fa-edit me-2"></i>Edit
-                    </a>
-                    @endif
                 </div>
             </div>
         </div>
@@ -44,10 +39,13 @@
     <div class="row">
         <!-- Main Information -->
         <div class="col-lg-8">
-            <!-- Rekam Medis Info -->
+            <!-- Rekam Medis Info (Read Only - Dibuat oleh Perawat) -->
             <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-file-medical me-2"></i>Informasi Rekam Medis</h5>
+                    <span class="badge bg-light text-dark">
+                        <i class="fas fa-lock me-1"></i>Read Only - Dibuat Perawat
+                    </span>
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
@@ -252,9 +250,12 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="detail" class="form-label">Detail/Catatan</label>
-                        <textarea class="form-control" id="detail" name="detail" rows="3" 
-                                  placeholder="Catatan tambahan..."></textarea>
+                        <label for="detail" class="form-label">
+                            Detail/Catatan <span class="text-danger">*</span>
+                        </label>
+                        <textarea class="form-control" id="detail" name="detail" rows="4" 
+                                  placeholder="Catatan detail tindakan terapi..." required></textarea>
+                        <small class="text-muted">Wajib diisi - jelaskan detail pelaksanaan tindakan terapi</small>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -296,8 +297,11 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Detail/Catatan</label>
-                        <textarea class="form-control" name="detail" rows="3">{{ $detail->detail }}</textarea>
+                        <label class="form-label">
+                            Detail/Catatan <span class="text-danger">*</span>
+                        </label>
+                        <textarea class="form-control" name="detail" rows="4" required>{{ $detail->detail }}</textarea>
+                        <small class="text-muted">Wajib diisi - jelaskan detail pelaksanaan tindakan terapi</small>
                     </div>
                 </div>
                 <div class="modal-footer">

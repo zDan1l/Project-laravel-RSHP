@@ -42,8 +42,10 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Nama</th>
+                                    <th>Email</th>
                                     <th>No WhatsApp</th>
                                     <th>Alamat</th>
+                                    <th>Role</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -62,8 +64,14 @@
                                                 </div>
                                             </div>
                                         </td>
+                                        <td>{{ $pemilik->user->email }}</td>
                                         <td>{{ $pemilik->no_wa }}</td>
                                         <td>{{ $pemilik->alamat }}</td>
+                                        <td>
+                                            <span class="badge bg-info">
+                                                <i class="fas fa-user-tag me-1"></i>Pemilik
+                                            </span>
+                                        </td>
                                         <td>
                                             <div class="btn-group" role="group">
                                                 <a href="{{ route('admin.pemilik.edit', $pemilik->idpemilik) }}" class="btn btn-sm btn-outline-warning" title="Edit">

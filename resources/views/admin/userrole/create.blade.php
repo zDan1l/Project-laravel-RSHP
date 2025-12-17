@@ -6,7 +6,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Assign/Change User Role</h4>
+                    <h4 class="mb-0">Assign Role ke User</h4>
                 </div>
                 <div class="card-body">
                     @if(session('error'))
@@ -18,38 +18,36 @@
 
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
-                        <strong>Catatan:</strong> Setiap user hanya bisa memiliki 1 role aktif. Ketika Anda assign role baru, role lama akan dinonaktifkan.
+                        <strong>Catatan:</strong> Setiap user hanya boleh memiliki <strong>1 role aktif</strong>. 
+                        Ketika Anda assign role baru, role lama akan otomatis dinonaktifkan.
                     </div>
 
                     <form action="{{ route('admin.user-role.store') }}" method="POST">
                         @csrf
                         
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label for="iduser" class="form-label">Pilih User <span class="text-danger">*</span></label>
                             <select class="form-select @error('iduser') is-invalid @enderror" 
-                                    id="iduser" name="iduser" required onchange="loadUserRoles(this.value)">
+                                    id="iduser" name="iduser" required>
                                 <option value="">-- Pilih User --</option>
                                 @foreach($users as $user)
+                                    @php
+                                        $activeRole = $user->userRole->where('status', 1)->first();
+                                        $currentRole = $activeRole ? ' - Current: ' . $activeRole->role->nama_role : ' - No Active Role';
+                                    @endphp
                                     <option value="{{ $user->iduser }}" {{ old('iduser', request('user')) == $user->iduser ? 'selected' : '' }}>
-                                        {{ $user->nama }} ({{ $user->email }})
+                                        {{ $user->nama }} ({{ $user->email }}){{ $currentRole }}
                                     </option>
                                 @endforeach
                             </select>
                             @error('iduser')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
+                            <small class="text-muted">Pilih user yang akan di-assign role</small>
                         </div>
 
-                        <!-- Display current roles -->
-                        <div id="currentRoles" class="mb-3" style="display: none;">
-                            <label class="form-label">Current Roles:</label>
-                            <div id="rolesContainer" class="d-flex flex-wrap gap-2">
-                                <!-- Will be populated by JavaScript -->
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="idrole" class="form-label">Pilih Role Baru <span class="text-danger">*</span></label>
+                        <div class="mb-4">
+                            <label for="idrole" class="form-label">Pilih Role <span class="text-danger">*</span></label>
                             <select class="form-select @error('idrole') is-invalid @enderror" 
                                     id="idrole" name="idrole" required>
                                 <option value="">-- Pilih Role --</option>
@@ -62,7 +60,7 @@
                             @error('idrole')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            <small class="text-muted">Role yang dipilih akan menjadi role aktif, role lain akan dinonaktifkan</small>
+                            <small class="text-muted">Role yang dipilih akan menjadi role aktif untuk user tersebut</small>
                         </div>
 
                         <div class="d-flex gap-2">
@@ -79,52 +77,4 @@
         </div>
     </div>
 </div>
-
-<script>
-    // Data roles untuk setiap user (dari server)
-    const userRolesData = @json($users->mapWithKeys(function($user) {
-        return [
-            $user->iduser => $user->userRole->map(function($ur) {
-                return [
-                    'role_name' => $ur->role->nama_role,
-                    'status' => $ur->status
-                ];
-            })
-        ];
-    }));
-
-    function loadUserRoles(userId) {
-        const currentRolesDiv = document.getElementById('currentRoles');
-        const rolesContainer = document.getElementById('rolesContainer');
-        
-        if (!userId || !userRolesData[userId] || userRolesData[userId].length === 0) {
-            currentRolesDiv.style.display = 'none';
-            return;
-        }
-
-        const roles = userRolesData[userId];
-        let rolesHtml = '';
-        
-        roles.forEach(role => {
-            const badgeClass = role.status == 1 ? 'bg-success' : 'bg-secondary';
-            const statusText = role.status == 1 ? 'Aktif' : 'Tidak Aktif';
-            rolesHtml += `
-                <div class="badge ${badgeClass} p-2">
-                    ${role.role_name} <small>(${statusText})</small>
-                </div>
-            `;
-        });
-
-        rolesContainer.innerHTML = rolesHtml;
-        currentRolesDiv.style.display = 'block';
-    }
-
-    // Load roles on page load if user is pre-selected
-    document.addEventListener('DOMContentLoaded', function() {
-        const userSelect = document.getElementById('iduser');
-        if (userSelect.value) {
-            loadUserRoles(userSelect.value);
-        }
-    });
-</script>
 @endsection

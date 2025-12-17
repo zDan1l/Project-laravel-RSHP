@@ -153,13 +153,14 @@ Route::prefix('perawat')->name('perawat.')->middleware(['auth', 'isPerawat'])->g
     // Daftar Pasien
     Route::get('/daftar-pasien', [App\Http\Controllers\PerawatController::class, 'daftarPasien'])->name('daftar-pasien.index');
     
-    // Rekam Medis (View Only - Read Only untuk rekam medis utama)
-    Route::get('/rekam-medis/{id}', [App\Http\Controllers\PerawatController::class, 'lihatRekamMedis'])->name('rekam-medis.show');
+    // Rekam Medis (Perawat hanya bisa CREATE rekam medis utama - READ ONLY untuk detail tindakan)
+    Route::get('/rekam-medis', [App\Http\Controllers\PerawatController::class, 'index'])->name('rekam-medis.index');
+    Route::get('/rekam-medis/create/{idTemuDokter}', [App\Http\Controllers\PerawatController::class, 'create'])->name('rekam-medis.create');
+    Route::post('/rekam-medis', [App\Http\Controllers\PerawatController::class, 'store'])->name('rekam-medis.store');
+    Route::get('/rekam-medis/{id}', [App\Http\Controllers\PerawatController::class, 'show'])->name('rekam-medis.show');
     
-    // Detail Tindakan Terapi (Perawat bisa CUD)
-    Route::post('/rekam-medis/{id}/tindakan', [App\Http\Controllers\PerawatController::class, 'tambahTindakan'])->name('rekam-medis.tindakan.store');
-    Route::put('/rekam-medis/{id}/tindakan/{idDetail}', [App\Http\Controllers\PerawatController::class, 'updateTindakan'])->name('rekam-medis.tindakan.update');
-    Route::delete('/rekam-medis/{id}/tindakan/{idDetail}', [App\Http\Controllers\PerawatController::class, 'deleteTindakan'])->name('rekam-medis.tindakan.delete');
+    // Perawat TIDAK BISA menambah/edit/hapus detail tindakan terapi
+    // Hanya DOKTER yang bisa mengelola detail tindakan
 });
 
 // dokter router
@@ -173,15 +174,15 @@ Route::prefix('dokter')->name('dokter.')->middleware(['auth', 'isDokter'])->grou
     Route::get('/antrian', [DokterRekamMedisController::class, 'antrian'])->name('antrian.index');
     Route::post('/antrian/{id}/mulai', [DokterRekamMedisController::class, 'mulaiPemeriksaan'])->name('antrian.mulai');
     
-    // Rekam Medis
+    // Rekam Medis (Dokter hanya bisa LIHAT rekam medis yang dibuat perawat)
     Route::get('/rekam-medis', [DokterRekamMedisController::class, 'index'])->name('rekam-medis.index');
-    Route::get('/rekam-medis/create/{idTemuDokter}', [DokterRekamMedisController::class, 'create'])->name('rekam-medis.create');
-    Route::post('/rekam-medis', [DokterRekamMedisController::class, 'store'])->name('rekam-medis.store');
+    Route::get('/rekam-medis/create/{idTemuDokter}', [DokterRekamMedisController::class, 'create'])->name('rekam-medis.create'); // Redirect ke show
+    Route::post('/rekam-medis', [DokterRekamMedisController::class, 'store'])->name('rekam-medis.store'); // Disabled
     Route::get('/rekam-medis/{id}', [DokterRekamMedisController::class, 'show'])->name('rekam-medis.show');
-    Route::get('/rekam-medis/{id}/edit', [DokterRekamMedisController::class, 'edit'])->name('rekam-medis.edit');
-    Route::put('/rekam-medis/{id}', [DokterRekamMedisController::class, 'update'])->name('rekam-medis.update');
+    Route::get('/rekam-medis/{id}/edit', [DokterRekamMedisController::class, 'edit'])->name('rekam-medis.edit'); // Disabled
+    Route::put('/rekam-medis/{id}', [DokterRekamMedisController::class, 'update'])->name('rekam-medis.update'); // Disabled
     
-    // Detail Rekam Medis (Tindakan Terapi)
+    // Detail Rekam Medis (Tindakan Terapi) - FOKUS DOKTER DI SINI
     Route::post('/rekam-medis/{id}/detail', [DokterRekamMedisController::class, 'storeDetail'])->name('rekam-medis.detail.store');
     Route::put('/rekam-medis/{id}/detail/{idDetail}', [DokterRekamMedisController::class, 'updateDetail'])->name('rekam-medis.detail.update');
     Route::delete('/rekam-medis/{id}/detail/{idDetail}', [DokterRekamMedisController::class, 'deleteDetail'])->name('rekam-medis.detail.delete');

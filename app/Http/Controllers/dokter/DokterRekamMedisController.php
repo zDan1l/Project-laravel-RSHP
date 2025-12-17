@@ -16,18 +16,33 @@ class DokterRekamMedisController extends Controller
 {
     /**
      * Display antrian pasien untuk dokter yang login
+     * Hanya tampilkan pasien yang SUDAH MEMILIKI REKAM MEDIS dari perawat
+     * Status: W = Waiting (sudah ada RM, belum ditangani dokter)
+     *         P = Process (sedang ditangani dokter)
+     *         S = Selesai (untuk riwayat)
      */
     public function antrian(Request $request)
     {
         $idRoleUser = session('idrole_user');
         
-        $query = TemuDokter::with(['pet.pemilik.user', 'pet.ras.jenisHewan'])
-            ->whereIn('status', ['A', 'P', 'W']); // A = Antri, P = Proses, W = Waiting
+        // Ambil TemuDokter yang sudah punya RekamMedis
+        $query = TemuDokter::with(['pet.pemilik.user', 'pet.ras.jenisHewan', 'rekamMedis'])
+            ->whereHas('rekamMedis'); // HANYA yang sudah ada rekam medis dari perawat
 
-        // Filter by idrole_user jika ada
-        if ($idRoleUser) {
-            $query->where('idrole_user', $idRoleUser);
+        // Filter by status - default tampilkan yang belum selesai (W, P)
+        $statusFilter = $request->input('status', 'active'); // active, all, selesai
+        if ($statusFilter == 'active') {
+            $query->whereIn('status', ['W', 'P', 'A']); // W, P, atau A yang sudah punya RM
+        } elseif ($statusFilter == 'selesai') {
+            $query->where('status', 'S');
         }
+        // jika 'all', tidak filter status
+
+        // Filter by idrole_user (dokter yang login)
+        // TEMPORARY: Comment untuk testing - semua dokter bisa lihat semua pasien
+        // if ($idRoleUser) {
+        //     $query->where('idrole_user', $idRoleUser);
+        // }
 
         // Filter by date (opsional)
         if ($request->filled('tanggal')) {
@@ -40,20 +55,30 @@ class DokterRekamMedisController extends Controller
     }
 
     /**
-     * Mulai pemeriksaan - ubah status menjadi P (Proses)
+     * Lihat rekam medis yang sudah dibuat perawat
+     * Dokter akan menambahkan detail tindakan terapi
      */
     public function mulaiPemeriksaan($id)
     {
         try {
             $temuDokter = TemuDokter::findOrFail($id);
+            
+            // Cari rekam medis yang sudah dibuat perawat
+            $rekamMedis = RekamMedis::where('idreservasi_dokter', $id)->first();
+            
+            if (!$rekamMedis) {
+                return redirect()->back()
+                    ->with('error', 'Rekam medis belum dibuat oleh perawat. Silakan minta perawat untuk membuat rekam medis terlebih dahulu.');
+            }
 
-            $temuDokter->update(['status' => 'P']); // P = Proses
+            // Update status menjadi S (Selesai) setelah dokter selesai
+            $temuDokter->update(['status' => 'P']); // P = Proses dokter
 
-            return redirect()->route('dokter.rekam-medis.create', $id)
-                ->with('success', 'Pemeriksaan dimulai. Silakan isi rekam medis.');
+            return redirect()->route('dokter.rekam-medis.show', $rekamMedis->idrekam_medis)
+                ->with('success', 'Silakan tambahkan detail tindakan terapi untuk pasien ini.');
 
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal memulai pemeriksaan: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal membuka rekam medis: ' . $e->getMessage());
         }
     }
 
@@ -104,94 +129,34 @@ class DokterRekamMedisController extends Controller
     }
 
     /**
-     * Show the form for creating a new rekam medis
+     * Redirect to show - dokter tidak bisa create rekam medis
+     * Hanya perawat yang bisa create rekam medis
      */
     public function create($idTemuDokter)
     {
-        $temuDokter = TemuDokter::with(['pet.pemilik.user', 'pet.ras.jenisHewan'])
-            ->findOrFail($idTemuDokter);
-
-        // Cek apakah sudah ada rekam medis untuk temu_dokter ini
-        $existingRekam = RekamMedis::where('idreservasi_dokter', $idTemuDokter)->first();
-        if ($existingRekam) {
-            return redirect()->route('dokter.rekam-medis.show', $existingRekam->idrekam_medis)
-                ->with('info', 'Rekam medis sudah dibuat untuk pasien ini.');
+        $rekamMedis = RekamMedis::where('idreservasi_dokter', $idTemuDokter)->first();
+        
+        if (!$rekamMedis) {
+            return redirect()->route('dokter.antrian.index')
+                ->with('error', 'Rekam medis belum dibuat oleh perawat.');
         }
-
-        $tindakanTerapi = KodeTindakanTerapi::with(['kategori', 'kategoriKlinis'])
-            ->orderBy('kode')
-            ->get();
-
-        return view('dokter.rekam-medis.create', compact('temuDokter', 'tindakanTerapi'));
+        
+        return redirect()->route('dokter.rekam-medis.show', $rekamMedis->idrekam_medis);
     }
 
     /**
-     * Store a newly created rekam medis
+     * Dokter tidak bisa store rekam medis
+     * Hanya perawat yang bisa membuat rekam medis
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'idreservasi_dokter' => 'required|exists:temu_dokter,idreservasi_dokter',
-            'anamnesa' => 'required|string',
-            'temuan_klinis' => 'required|string',
-            'diagnosa' => 'required|string',
-            'tindakan' => 'nullable|array',
-            'tindakan.*.idkode_tindakan_terapi' => 'required|exists:kode_tindakan_terapi,idkode_tindakan_terapi',
-            'tindakan.*.detail' => 'nullable|string',
-        ]);
-
-        DB::beginTransaction();
-        try {
-            // Generate ID rekam medis
-            $maxId = RekamMedis::max('idrekam_medis') ?? 0;
-            $newId = $maxId + 1;
-
-            // Create rekam medis
-            $rekamMedis = RekamMedis::create([
-                'idrekam_medis' => $newId,
-                'idreservasi_dokter' => $request->idreservasi_dokter,
-                'created_at' => now(),
-                'anamnesa' => $request->anamnesa,
-                'temuan_klinis' => $request->temuan_klinis,
-                'diagnosa' => $request->diagnosa,
-                'dokter_pemeriksa' => session('user_id') ?? Auth::id(),
-            ]);
-
-            // Create detail rekam medis (tindakan)
-            if ($request->has('tindakan') && is_array($request->tindakan)) {
-                $maxDetailId = DetailRekamMedis::max('iddetail_rekam_medis') ?? 0;
-                
-                foreach ($request->tindakan as $tindakan) {
-                    if (!empty($tindakan['idkode_tindakan_terapi'])) {
-                        $maxDetailId++;
-                        DetailRekamMedis::create([
-                            'iddetail_rekam_medis' => $maxDetailId,
-                            'idrekam_medis' => $newId,
-                            'idkode_tindakan_terapi' => $tindakan['idkode_tindakan_terapi'],
-                            'detail' => $tindakan['detail'] ?? null,
-                        ]);
-                    }
-                }
-            }
-
-            // Update status temu_dokter menjadi S (Selesai)
-            TemuDokter::where('idreservasi_dokter', $request->idreservasi_dokter)
-                ->update(['status' => 'S']);
-
-            DB::commit();
-            return redirect()->route('dokter.rekam-medis.show', $newId)
-                ->with('success', 'Rekam medis berhasil disimpan!');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->back()
-                ->with('error', 'Gagal menyimpan rekam medis: ' . $e->getMessage())
-                ->withInput();
-        }
+        return redirect()->route('dokter.rekam-medis.index')
+            ->with('error', 'Dokter tidak dapat membuat rekam medis. Hanya perawat yang dapat membuat rekam medis.');
     }
 
     /**
      * Display the specified rekam medis
+     * Dokter bisa lihat dan menambahkan detail tindakan terapi
      */
     public function show($id)
     {
@@ -202,89 +167,50 @@ class DokterRekamMedisController extends Controller
             'detailRekamMedis.kodeTindakanTerapi.kategori',
             'detailRekamMedis.kodeTindakanTerapi.kategoriKlinis'
         ])->findOrFail($id);
-
-        return view('dokter.rekam-medis.show', compact('rekamMedis'));
-    }
-
-    /**
-     * Show the form for editing rekam medis
-     */
-    public function edit($id)
-    {
-        $rekamMedis = RekamMedis::with([
-            'temuDokter.pet.pemilik.user', 
-            'temuDokter.pet.ras.jenisHewan',
-            'detailRekamMedis'
-        ])->findOrFail($id);
-
-        // Hanya dokter yang membuat yang bisa edit
-        $userId = session('user_id') ?? Auth::id();
-        if ($rekamMedis->dokter_pemeriksa != $userId) {
-            return redirect()->route('dokter.rekam-medis.index')
-                ->with('error', 'Anda hanya dapat mengedit rekam medis yang Anda buat.');
-        }
-
-        $tindakanTerapi = KodeTindakanTerapi::with(['kategori', 'kategoriKlinis'])
+        
+        $kodeTindakanTerapi = KodeTindakanTerapi::with(['kategori', 'kategoriKlinis'])
             ->orderBy('kode')
             ->get();
 
-        return view('dokter.rekam-medis.edit', compact('rekamMedis', 'tindakanTerapi'));
+        return view('dokter.rekam-medis.show', compact('rekamMedis', 'kodeTindakanTerapi'));
     }
 
     /**
-     * Update the specified rekam medis
+     * Dokter tidak bisa edit rekam medis utama
+     * Hanya perawat yang bisa edit anamnesa, temuan klinis, diagnosa
+     */
+    public function edit($id)
+    {
+        return redirect()->route('dokter.rekam-medis.show', $id)
+            ->with('error', 'Dokter tidak dapat mengedit data rekam medis utama. Hanya dapat menambahkan detail tindakan terapi.');
+    }
+
+    /**
+     * Dokter tidak bisa update rekam medis utama
      */
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'anamnesa' => 'required|string',
-            'temuan_klinis' => 'required|string',
-            'diagnosa' => 'required|string',
-        ]);
-
-        $rekamMedis = RekamMedis::findOrFail($id);
-
-        // Hanya dokter yang membuat yang bisa update
-        $userId = session('user_id') ?? Auth::id();
-        if ($rekamMedis->dokter_pemeriksa != $userId) {
-            return redirect()->route('dokter.rekam-medis.index')
-                ->with('error', 'Anda hanya dapat mengedit rekam medis yang Anda buat.');
-        }
-
-        try {
-            $rekamMedis->update([
-                'anamnesa' => $request->anamnesa,
-                'temuan_klinis' => $request->temuan_klinis,
-                'diagnosa' => $request->diagnosa,
-            ]);
-
-            return redirect()->route('dokter.rekam-medis.show', $id)
-                ->with('success', 'Rekam medis berhasil diperbarui!');
-
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'Gagal memperbarui rekam medis: ' . $e->getMessage())
-                ->withInput();
-        }
+        return redirect()->route('dokter.rekam-medis.show', $id)
+            ->with('error', 'Dokter tidak dapat mengedit data rekam medis utama.');
     }
 
     /**
      * Store detail rekam medis (tindakan terapi)
+     * Dokter fokus menambahkan detail tindakan terapi
      */
     public function storeDetail(Request $request, $id)
     {
         $request->validate([
             'idkode_tindakan_terapi' => 'required|exists:kode_tindakan_terapi,idkode_tindakan_terapi',
-            'detail' => 'nullable|string',
+            'detail' => 'required|string|max:1000',
+        ], [
+            'idkode_tindakan_terapi.required' => 'Tindakan terapi harus dipilih',
+            'idkode_tindakan_terapi.exists' => 'Tindakan terapi tidak valid',
+            'detail.required' => 'Detail rincian harus diisi',
+            'detail.max' => 'Detail rincian maksimal 1000 karakter',
         ]);
 
         $rekamMedis = RekamMedis::findOrFail($id);
-
-        // Hanya dokter yang membuat yang bisa tambah detail
-        $userId = session('user_id') ?? Auth::id();
-        if ($rekamMedis->dokter_pemeriksa != $userId) {
-            return redirect()->back()->with('error', 'Anda tidak memiliki akses.');
-        }
 
         try {
             $maxDetailId = DetailRekamMedis::max('iddetail_rekam_medis') ?? 0;
@@ -294,9 +220,12 @@ class DokterRekamMedisController extends Controller
                 'idrekam_medis' => $id,
                 'idkode_tindakan_terapi' => $request->idkode_tindakan_terapi,
                 'detail' => $request->detail,
+                'petugas_input' => session('user_id') ?? Auth::id(),
+                'tipe_petugas' => 'dokter'
             ]);
 
-            return redirect()->back()->with('success', 'Tindakan terapi berhasil ditambahkan!');
+            return redirect()->route('dokter.rekam-medis.show', $id)
+                ->with('success', 'Tindakan terapi berhasil ditambahkan!');
 
         } catch (\Exception $e) {
             return redirect()->back()
@@ -306,29 +235,37 @@ class DokterRekamMedisController extends Controller
 
     /**
      * Update detail rekam medis
+     * Dokter hanya bisa edit tindakan yang dia input sendiri
      */
     public function updateDetail(Request $request, $id, $idDetail)
     {
         $request->validate([
             'idkode_tindakan_terapi' => 'required|exists:kode_tindakan_terapi,idkode_tindakan_terapi',
-            'detail' => 'nullable|string',
+            'detail' => 'required|string|max:1000',
+        ], [
+            'idkode_tindakan_terapi.required' => 'Tindakan terapi harus dipilih',
+            'idkode_tindakan_terapi.exists' => 'Tindakan terapi tidak valid',
+            'detail.required' => 'Detail rincian harus diisi',
+            'detail.max' => 'Detail rincian maksimal 1000 karakter',
         ]);
 
-        $rekamMedis = RekamMedis::findOrFail($id);
-
-        $userId = session('user_id') ?? Auth::id();
-        if ($rekamMedis->dokter_pemeriksa != $userId) {
-            return redirect()->back()->with('error', 'Anda tidak memiliki akses.');
-        }
-
         try {
-            DetailRekamMedis::where('iddetail_rekam_medis', $idDetail)
-                ->update([
-                    'idkode_tindakan_terapi' => $request->idkode_tindakan_terapi,
-                    'detail' => $request->detail,
-                ]);
+            $detail = DetailRekamMedis::where('iddetail_rekam_medis', $idDetail)->firstOrFail();
+            
+            // Dokter hanya bisa edit tindakan yang dia input sendiri
+            $currentUserId = session('user_id') ?? Auth::id();
+            if ($detail->petugas_input && $detail->petugas_input != $currentUserId) {
+                return redirect()->route('dokter.rekam-medis.show', $id)
+                    ->with('error', 'Anda hanya bisa mengedit tindakan yang Anda input sendiri');
+            }
+            
+            $detail->update([
+                'idkode_tindakan_terapi' => $request->idkode_tindakan_terapi,
+                'detail' => $request->detail,
+            ]);
 
-            return redirect()->back()->with('success', 'Tindakan terapi berhasil diperbarui!');
+            return redirect()->route('dokter.rekam-medis.show', $id)
+                ->with('success', 'Tindakan terapi berhasil diperbarui!');
 
         } catch (\Exception $e) {
             return redirect()->back()
@@ -338,19 +275,24 @@ class DokterRekamMedisController extends Controller
 
     /**
      * Delete detail rekam medis
+     * Dokter hanya bisa hapus tindakan yang dia input sendiri
      */
     public function deleteDetail($id, $idDetail)
     {
-        $rekamMedis = RekamMedis::findOrFail($id);
-
-        $userId = session('user_id') ?? Auth::id();
-        if ($rekamMedis->dokter_pemeriksa != $userId) {
-            return redirect()->back()->with('error', 'Anda tidak memiliki akses.');
-        }
-
         try {
-            DetailRekamMedis::where('iddetail_rekam_medis', $idDetail)->delete();
-            return redirect()->back()->with('success', 'Tindakan terapi berhasil dihapus!');
+            $detail = DetailRekamMedis::where('iddetail_rekam_medis', $idDetail)->firstOrFail();
+            
+            // Dokter hanya bisa hapus tindakan yang dia input sendiri
+            $currentUserId = session('user_id') ?? Auth::id();
+            if ($detail->petugas_input && $detail->petugas_input != $currentUserId) {
+                return redirect()->route('dokter.rekam-medis.show', $id)
+                    ->with('error', 'Anda hanya bisa menghapus tindakan yang Anda input sendiri');
+            }
+            
+            $detail->delete();
+            
+            return redirect()->route('dokter.rekam-medis.show', $id)
+                ->with('success', 'Tindakan terapi berhasil dihapus!');
 
         } catch (\Exception $e) {
             return redirect()->back()

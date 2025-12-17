@@ -42,30 +42,34 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        // Perbaikan: Ubah 'nama' menjadi 'name' jika sesuai dengan konvensi kolom di tabel users
         $validated = $request->validate([
-            'name' => 'required|string|max:100', // Asumsi kolom adalah 'name'
-            'email' => 'required|email|unique:users,email|max:100', // Perbaikan: Gunakan 'users' bukan 'user' jika tabel default
-            'password' => 'required|string|min:6|confirmed',
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email|unique:user,email|max:255',
+            'password' => 'required|string|min:8|confirmed',
         ], [
-            'name.required' => 'Nama harus diisi',
+            'nama.required' => 'Nama harus diisi',
+            'nama.max' => 'Nama maksimal 255 karakter',
             'email.required' => 'Email harus diisi',
             'email.email' => 'Format email tidak valid',
-            'email.unique' => 'Email sudah digunakan',
+            'email.unique' => 'Email sudah terdaftar',
             'password.required' => 'Password harus diisi',
-            'password.min' => 'Password minimal 6 karakter',
+            'password.min' => 'Password minimal 8 karakter',
             'password.confirmed' => 'Konfirmasi password tidak cocok',
         ]);
 
         try {
             DB::beginTransaction();
 
-            $validated['password'] = Hash::make($validated['password']);
-            // Perbaikan: Ganti key 'nama' menjadi 'name' di array $validated
-            $validated['nama'] = $validated['name']; 
-            unset($validated['name']);
+            // Generate iduser (ambil max id + 1)
+            $lastUserId = User::max('iduser');
+            $newUserId = $lastUserId ? $lastUserId + 1 : 1;
 
-            User::create($validated);
+            User::create([
+                'iduser' => $newUserId,
+                'nama' => $validated['nama'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+            ]);
 
             DB::commit();
 
@@ -104,33 +108,30 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
         
-        // Perbaikan: Gunakan Rule::unique() untuk validasi unik yang lebih rapi
-        // Perbaikan: Ubah 'nama' menjadi 'name' jika sesuai dengan konvensi kolom
         $validated = $request->validate([
-            'name' => 'required|string|max:100', // Asumsi kolom adalah 'name'
-            // Perbaikan: Gunakan Rule::unique untuk email, menyesuaikan dengan id saat ini dan nama kolom primary key
+            'nama' => 'required|string|max:255',
             'email' => [
                 'required',
                 'email',
-                'max:100',
-                Rule::unique('users', 'email')->ignore($user->id, $user->getKeyName()),
+                'max:255',
+                Rule::unique('user', 'email')->ignore($id, 'iduser'),
             ],
-            'password' => 'nullable|string|min:6|confirmed',
+            'password' => 'nullable|string|min:8|confirmed',
         ], [
-            'name.required' => 'Nama harus diisi',
+            'nama.required' => 'Nama harus diisi',
+            'nama.max' => 'Nama maksimal 255 karakter',
             'email.required' => 'Email harus diisi',
             'email.email' => 'Format email tidak valid',
-            'email.unique' => 'Email sudah digunakan',
-            'password.min' => 'Password minimal 6 karakter',
+            'email.unique' => 'Email sudah terdaftar',
+            'password.min' => 'Password minimal 8 karakter',
             'password.confirmed' => 'Konfirmasi password tidak cocok',
         ]);
 
         try {
             DB::beginTransaction();
             
-            // Perbaikan: Pisahkan 'nama' dan 'email' dari $validated untuk update
             $updateData = [
-                'nama' => $validated['name'], // Asumsi kolom di DB adalah 'nama'
+                'nama' => $validated['nama'],
                 'email' => $validated['email'],
             ];
 

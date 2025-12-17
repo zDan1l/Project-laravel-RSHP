@@ -2,6 +2,43 @@
 
 @section('title', 'Daftar Pasien')
 
+@section('styles')
+<style>
+    .status-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border-radius: 0.25rem;
+        text-align: center;
+        min-width: 80px;
+    }
+    .status-waiting {
+        background-color: #6c757d;
+        color: white;
+    }
+    .status-queue {
+        background-color: #ffc107;
+        color: #000;
+    }
+    .status-process {
+        background-color: #0dcaf0;
+        color: #000;
+    }
+    .status-done {
+        background-color: #198754;
+        color: white;
+    }
+    .status-cancelled {
+        background-color: #dc3545;
+        color: white;
+    }
+    .btn-group {
+        white-space: nowrap;
+    }
+</style>
+@endsection
+
 @section('content')
 <div class="container-fluid">
     <!-- Page Header -->
@@ -86,18 +123,43 @@
                                     {{ $status['text'] }}
                                 </span>
                             </td>
-                            <td class="text-center">
-                                @if($pasien->rekamMedis)
-                                    <a href="{{ route('perawat.rekam-medis.show', $pasien->rekamMedis->idrekam_medis) }}" 
-                                       class="btn btn-sm btn-info" 
-                                       title="Lihat Rekam Medis">
-                                        <i class="fas fa-file-medical"></i>
-                                    </a>
-                                @else
-                                    <span class="badge bg-secondary" title="Belum ada rekam medis">
-                                        <i class="fas fa-minus"></i>
-                                    </span>
-                                @endif
+                            <td class="text-center align-middle">
+                                @php
+                                    // Cari rekam medis dari pasien ini
+                                    $rekamMedis = \App\Models\RekamMedis::where('idreservasi_dokter', $pasien->idreservasi_dokter)->first();
+                                @endphp
+                                
+                                <div class="d-flex justify-content-center gap-1">
+                                    @if($rekamMedis)
+                                        {{-- TOMBOL LIHAT: Sudah ada rekam medis --}}
+                                        <a href="{{ route('perawat.rekam-medis.show', $rekamMedis->idrekam_medis) }}" 
+                                           class="btn btn-sm btn-info text-white fw-bold"
+                                           style="min-width: 100px; padding: 6px 12px;">
+                                            <i class="fas fa-eye me-1"></i>Lihat
+                                        </a>
+                                    @else
+                                        {{-- TOMBOL BUAT: Belum ada rekam medis --}}
+                                        @if($pasien->status == 'W' || $pasien->status == 'A' || $pasien->status == 'P')
+                                            <a href="{{ route('perawat.rekam-medis.create', $pasien->idreservasi_dokter) }}" 
+                                               class="btn btn-sm btn-success text-white fw-bold"
+                                               style="min-width: 100px; padding: 6px 12px;">
+                                                <i class="fas fa-plus-circle me-1"></i>Buat RM
+                                            </a>
+                                        @elseif($pasien->status == 'S')
+                                            <span class="badge bg-success fs-6" style="min-width: 100px; padding: 6px 12px;">
+                                                <i class="fas fa-check me-1"></i>Selesai
+                                            </span>
+                                        @elseif($pasien->status == 'C')
+                                            <span class="badge bg-danger fs-6" style="min-width: 100px; padding: 6px 12px;">
+                                                <i class="fas fa-times me-1"></i>Batal
+                                            </span>
+                                        @else
+                                            <span class="badge bg-secondary fs-6" style="min-width: 100px; padding: 6px 12px;">
+                                                <i class="fas fa-question me-1"></i>{{ $pasien->status ?? 'N/A' }}
+                                            </span>
+                                        @endif
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                         @empty
@@ -130,12 +192,22 @@
     <div class="card mt-4 border-start border-5 border-info">
         <div class="card-body">
             <h6 class="fw-bold mb-2">
-                <i class="fas fa-info-circle text-info me-2"></i>Informasi
+                <i class="fas fa-info-circle text-info me-2"></i>Informasi & Panduan
             </h6>
             <ul class="mb-0 small text-muted">
-                <li>Klik tombol <i class="fas fa-file-medical text-info"></i> untuk melihat rekam medis pasien</li>
-                <li>Anda dapat menambahkan tindakan sederhana pada rekam medis yang telah dibuat dokter</li>
-                <li>Anda hanya dapat mengedit atau menghapus tindakan yang Anda input sendiri</li>
+                <li><strong>Tombol Aksi:</strong>
+                    <ul>
+                        <li><span class="badge bg-success"><i class="fas fa-plus-circle"></i> Buat RM</span> - Buat rekam medis baru untuk pasien</li>
+                        <li><span class="badge bg-info"><i class="fas fa-eye"></i> Lihat</span> - Lihat detail rekam medis yang sudah dibuat</li>
+                    </ul>
+                </li>
+                <li><strong>Alur Kerja:</strong>
+                    <ol class="mb-0">
+                        <li>Perawat membuat rekam medis awal (anamnesa, temuan klinis, diagnosa)</li>
+                        <li>Dokter melanjutkan dengan menambahkan detail tindakan terapi</li>
+                        <li>Status pasien: W (Waiting) → A (Antri) → P (Proses) → S (Selesai)</li>
+                    </ol>
+                </li>
             </ul>
         </div>
     </div>

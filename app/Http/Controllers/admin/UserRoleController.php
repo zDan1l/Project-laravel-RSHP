@@ -16,8 +16,10 @@ class UserRoleController extends Controller
      */
     public function index()
     {
-        // Ambil users dengan roles dan data pivot
-        $users = User::with('userRole.role')->get();
+        // Ambil users dengan role aktif saja untuk tampilan lebih clean
+        $users = User::with(['userRole' => function($query) {
+            $query->where('status', 1)->with('role');
+        }])->get();
         
         return view('admin.userrole.index', compact('users'));
     }
@@ -52,7 +54,7 @@ class UserRoleController extends Controller
         try {
             DB::beginTransaction();
 
-            // Set all existing roles for this user to inactive (status = 0)
+            // Deactivate all existing roles for this user
             UserRole::where('iduser', $validated['iduser'])
                     ->update(['status' => 0]);
 
@@ -62,8 +64,10 @@ class UserRoleController extends Controller
                                    ->first();
 
             if ($existingRole) {
-                // Just activate the existing role
-                $existingRole->update(['status' => 1]);
+                // Just activate the existing role using where clause
+                UserRole::where('iduser', $validated['iduser'])
+                       ->where('idrole', $validated['idrole'])
+                       ->update(['status' => 1]);
             } else {
                 // Create new role assignment as active
                 UserRole::create([
@@ -75,9 +79,12 @@ class UserRoleController extends Controller
 
             DB::commit();
 
+            $user = User::find($validated['iduser']);
+            $role = Role::find($validated['idrole']);
+
             return redirect()
                 ->route('admin.user-role.index')
-                ->with('success', 'Role berhasil ditambahkan dan diaktifkan');
+                ->with('success', "Role '{$role->nama_role}' berhasil di-assign ke user {$user->nama}");
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()
@@ -123,8 +130,10 @@ class UserRoleController extends Controller
                                    ->first();
 
             if ($existingRole) {
-                // Just activate the existing role
-                $existingRole->update(['status' => 1]);
+                // Just activate the existing role using where clause
+                UserRole::where('iduser', $iduser)
+                       ->where('idrole', $validated['idrole'])
+                       ->update(['status' => 1]);
             } else {
                 // Create new role assignment as active
                 UserRole::create([
@@ -136,9 +145,12 @@ class UserRoleController extends Controller
 
             DB::commit();
 
+            $user = User::find($iduser);
+            $role = Role::find($validated['idrole']);
+
             return redirect()
                 ->route('admin.user-role.index')
-                ->with('success', 'Role user berhasil diganti');
+                ->with('success', "Role user {$user->nama} berhasil diganti menjadi '{$role->nama_role}'");
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()
@@ -149,37 +161,49 @@ class UserRoleController extends Controller
     }
 
     /**
-     * Remove role from user
+     * Remove role from user (hanya hapus role, bukan deactivate)
      */
     public function destroy($iduser, $idrole)
     {
         try {
+            DB::beginTransaction();
+
             $userRole = UserRole::where('iduser', $iduser)
                                ->where('idrole', $idrole)
                                ->first();
-            // dd($userRole);
+
             if (!$userRole) {
-                throw new \Exception('Role tidak ditemukan');
-            }
-
-            // Check if this is the only active role
-            $activeRolesCount = UserRole::where('iduser', $iduser)
-                                       ->where('status', 1)
-                                       ->count();
-            // dd($activeRolesCount);
-
-            if ($activeRolesCount == 1 && $userRole->status == 1) {
                 return redirect()
                     ->back()
-                    ->with('error', 'Tidak dapat menghapus role aktif terakhir. User harus memiliki minimal 1 role aktif.');
+                    ->with('error', 'Role tidak ditemukan untuk user ini');
             }
 
+            // Cek jika ini satu-satunya role aktif
+            if ($userRole->status == 1) {
+                $totalActiveRoles = UserRole::where('iduser', $iduser)
+                                           ->where('status', 1)
+                                           ->count();
+                
+                if ($totalActiveRoles <= 1) {
+                    return redirect()
+                        ->back()
+                        ->with('error', 'Tidak dapat menghapus role aktif terakhir. User harus memiliki minimal 1 role aktif.');
+                }
+            }
+
+            $user = User::find($iduser);
+            $role = Role::find($idrole);
+
+            // Hapus role dari user
             $userRole->delete();
 
+            DB::commit();
+
             return redirect()
-                ->back()
-                ->with('success', 'Role berhasil dihapus');
+                ->route('admin.user-role.index')
+                ->with('success', "Role '{$role->nama_role}' berhasil dihapus dari user {$user->nama}");
         } catch (\Exception $e) {
+            DB::rollBack();
             return redirect()
                 ->back()
                 ->with('error', 'Gagal menghapus role: ' . $e->getMessage());

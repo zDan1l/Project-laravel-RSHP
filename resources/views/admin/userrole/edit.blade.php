@@ -18,7 +18,8 @@
 
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle me-2"></i>
-                        <strong>Catatan:</strong> Mengganti role akan menonaktifkan semua role lama dan mengaktifkan role baru yang dipilih.
+                        <strong>Catatan:</strong> Mengganti role akan menonaktifkan role lama dan mengaktifkan role baru yang dipilih. 
+                        User hanya boleh memiliki <strong>1 role aktif</strong>.
                     </div>
 
                     <!-- User Information Card -->
@@ -37,38 +38,23 @@
                             <!-- Current Active Role -->
                             <div class="mt-3">
                                 <label class="form-label fw-bold">Role Aktif Saat Ini:</label>
-                                <div class="d-flex flex-wrap gap-2">
+                                <div>
                                     @php
                                         $activeRole = $user->userRole->where('status', 1)->first();
                                     @endphp
                                     @if($activeRole)
-                                        <span class="badge bg-success p-2">
+                                        <span class="badge bg-success p-2 fs-6">
                                             <i class="fas fa-check-circle me-1"></i>
                                             {{ $activeRole->role->nama_role }}
                                         </span>
                                     @else
-                                        <span class="badge bg-warning text-dark p-2">
+                                        <span class="badge bg-warning text-dark p-2 fs-6">
                                             <i class="fas fa-exclamation-triangle me-1"></i>
                                             Tidak ada role aktif
                                         </span>
                                     @endif
                                 </div>
                             </div>
-
-                            <!-- All Assigned Roles -->
-                            @if($user->userRole->count() > 0)
-                            <div class="mt-3">
-                                <label class="form-label fw-bold">Semua Role yang Dimiliki:</label>
-                                <div class="d-flex flex-wrap gap-2">
-                                    @foreach($user->userRole as $ur)
-                                        <span class="badge bg-{{ $ur->status == 1 ? 'success' : 'secondary' }} p-2">
-                                            {{ $ur->role->nama_role }}
-                                            <small>({{ $ur->status == 1 ? 'Aktif' : 'Tidak Aktif' }})</small>
-                                        </span>
-                                    @endforeach
-                                </div>
-                            </div>
-                            @endif
                         </div>
                     </div>
 
@@ -76,21 +62,25 @@
                         @csrf
                         @method('PUT')
                         
-                        <div class="mb-3">
+                        <div class="mb-4">
                             <label for="idrole" class="form-label">Pilih Role Baru <span class="text-danger">*</span></label>
                             <select class="form-select @error('idrole') is-invalid @enderror" 
                                     id="idrole" name="idrole" required>
                                 <option value="">-- Pilih Role --</option>
                                 @foreach($roles as $role)
-                                    <option value="{{ $role->idrole }}" {{ old('idrole') == $role->idrole ? 'selected' : '' }}>
+                                    <option value="{{ $role->idrole }}" 
+                                            {{ old('idrole', $activeRole?->idrole) == $role->idrole ? 'selected' : '' }}>
                                         {{ $role->nama_role }}
+                                        @if($activeRole && $activeRole->idrole == $role->idrole)
+                                            (Role Aktif Saat Ini)
+                                        @endif
                                     </option>
                                 @endforeach
                             </select>
                             @error('idrole')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
-                            <small class="text-muted">Role yang dipilih akan menjadi role aktif, role lain akan dinonaktifkan</small>
+                            <small class="text-muted">Role yang dipilih akan menjadi role aktif untuk user ini</small>
                         </div>
 
                         <div class="d-flex gap-2">

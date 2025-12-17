@@ -83,9 +83,9 @@
                                         <td>{{ $rekamMedis->firstItem() + $index }}</td>
                                         <td>{{ $rm->created_at ? $rm->created_at->format('d M Y') : '-' }}</td>
                                         <td>{{ $rm->temuDokter->pet->nama ?? '-' }}</td>
-                                        <td>{{ $rm->temuDokter->pet->pemilik->nama ?? '-' }}</td>
+                                        <td>{{ $rm->temuDokter->pet->pemilik->user->nama ?? '-' }}</td>
                                         <td>{{ Str::limit($rm->diagnosa ?? '-', 40) }}</td>
-                                        <td>{{ $rm->dokter->name ?? '-' }}</td>
+                                        <td>{{ $rm->dokter->nama ?? '-' }}</td>
                                         <td>#{{ str_pad($rm->temuDokter->no_urut ?? '0', 3, '0', STR_PAD_LEFT) }}</td>
                                         <td class="text-center">
                                             <a href="{{ route('perawat.rekam-medis.show', $rm->idrekam_medis) }}" 

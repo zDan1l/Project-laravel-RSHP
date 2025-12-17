@@ -25,7 +25,7 @@
                 <div class="card shadow-sm">
                     <div class="card-header bg-white">
                         <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="card-title mb-0">Users with Their Roles</h5>
+                            <h5 class="card-title mb-0">Users & Active Roles</h5>
                             <span class="badge bg-info">{{ $users->count() }} Users</span>
                         </div>
                     </div>
@@ -49,8 +49,9 @@
                                 <thead class="table-light">
                                     <tr>
                                         <th width="5%">No</th>
-                                        <th width="30%">User Information</th>
-                                        <th width="45%">Assigned Roles</th>
+                                        <th width="35%">User</th>
+                                        <th width="25%">Role Aktif</th>
+                                        <th width="15%">Status</th>
                                         <th width="20%">Actions</th>
                                     </tr>
                                 </thead>
@@ -70,49 +71,51 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <div class="d-flex flex-wrap gap-2">
-                                                @forelse($user->userRole as $userRole)
-                                                    <div class="d-flex align-items-center border rounded px-3 py-2 {{ $userRole->status == 1 ? 'bg-success bg-opacity-10 border-success' : 'bg-light border-secondary' }}">
-                                                        <div class="me-2">
-                                                            <span class="badge bg-{{ $userRole->status == 1 ? 'success' : 'secondary' }}">
-                                                                {{ $userRole->role->nama_role }}
-                                                            </span>
-                                                        </div>
-                                                        <div class="me-2">
-                                                            @if($userRole->status == 1)
-                                                                <i class="fas fa-check-circle text-success" title="Active"></i>
-                                                                <small class="text-success fw-bold">Aktif</small>
-                                                            @else
-                                                                <i class="fas fa-times-circle text-muted" title="Inactive"></i>
-                                                                <small class="text-muted">Tidak Aktif</small>
-                                                            @endif
-                                                        </div>
-                                                        <div class="btn-group btn-group-sm">
-                                                            <form action="{{ route('admin.user-role.destroy', [$user->iduser, $userRole->idrole]) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus role {{ $userRole->role->nama_role }} dari {{ $user->nama }}?')">
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                <button type="submit" class="btn btn-outline-danger btn-sm" title="Hapus role">
-                                                                    <i class="fas fa-trash"></i>
-                                                                </button>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                @empty
-                                                    <span class="badge bg-warning text-dark">
-                                                        <i class="fas fa-exclamation-triangle me-1"></i>
-                                                        No roles assigned
-                                                    </span>
-                                                @endforelse
-                                            </div>
+                                            @php
+                                                $activeRole = $user->userRole->first();
+                                            @endphp
+                                            @if($activeRole)
+                                                <span class="badge bg-success p-2">
+                                                    <i class="fas fa-user-shield me-1"></i>
+                                                    {{ $activeRole->role->nama_role }}
+                                                </span>
+                                            @else
+                                                <span class="badge bg-warning text-dark p-2">
+                                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                                    No Active Role
+                                                </span>
+                                            @endif
                                         </td>
                                         <td>
-                                            <div class="btn-group" role="group">
-                                                <a href="{{ route('admin.user-role.edit', $user->iduser) }}" class="btn btn-sm btn-outline-warning" title="Ganti role">
+                                            @if($activeRole)
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check-circle me-1"></i>Aktif
+                                                </span>
+                                            @else
+                                                <span class="badge bg-secondary">
+                                                    <i class="fas fa-times-circle me-1"></i>Tidak Aktif
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a href="{{ route('admin.user-role.edit', $user->iduser) }}" 
+                                                   class="btn btn-outline-warning" 
+                                                   title="Ganti role">
                                                     <i class="fas fa-exchange-alt"></i>
                                                 </a>
-                                                <a href="{{ route('admin.user-role.create') }}?user={{ $user->iduser }}" class="btn btn-sm btn-outline-primary" title="Tambah role">
-                                                    <i class="fas fa-user-tag"></i>
-                                                </a>
+                                                @if($activeRole)
+                                                <form action="{{ route('admin.user-role.destroy', [$user->iduser, $activeRole->idrole]) }}" 
+                                                      method="POST" 
+                                                      class="d-inline" 
+                                                      onsubmit="return confirm('Hapus role {{ $activeRole->role->nama_role }} dari {{ $user->nama }}? User akan tidak memiliki role aktif.')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-outline-danger" title="Hapus role">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>

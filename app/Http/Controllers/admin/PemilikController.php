@@ -5,8 +5,10 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use App\Models\Pemilik;
 use App\Models\User;
+use App\Models\UserRole;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class PemilikController extends Controller
 {
@@ -16,19 +18,25 @@ class PemilikController extends Controller
     }
 
     public function create(){
-        $users = User::doesntHave('pemilik')->get();
-        return view('admin.pemilik.create', compact('users'));
+        return view('admin.pemilik.create');
     }
 
     public function store(Request $request){
         $validated = $request->validate([
-            'iduser' => 'required|exists:user,iduser|unique:pemilik,iduser',
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email|unique:user,email',
+            'password' => 'required|string|min:8|confirmed',
             'no_wa' => 'required|string|max:15',
             'alamat' => 'required|string|max:255',
         ], [
-            'iduser.required' => 'User harus dipilih',
-            'iduser.exists' => 'User tidak valid',
-            'iduser.unique' => 'User sudah terdaftar sebagai pemilik',
+            'nama.required' => 'Nama harus diisi',
+            'nama.max' => 'Nama maksimal 255 karakter',
+            'email.required' => 'Email harus diisi',
+            'email.email' => 'Format email tidak valid',
+            'email.unique' => 'Email sudah terdaftar',
+            'password.required' => 'Password harus diisi',
+            'password.min' => 'Password minimal 8 karakter',
+            'password.confirmed' => 'Konfirmasi password tidak cocok',
             'no_wa.required' => 'No WhatsApp harus diisi',
             'no_wa.max' => 'No WhatsApp maksimal 15 karakter',
             'alamat.required' => 'Alamat harus diisi',
@@ -38,17 +46,41 @@ class PemilikController extends Controller
         try {
             DB::beginTransaction();
 
-            // Generate idpemilik (ambil max id + 1)
-            $lastId = Pemilik::max('idpemilik');
-            $validated['idpemilik'] = $lastId ? $lastId + 1 : 1;
+            // 1. Generate iduser (ambil max id + 1)
+            $lastUserId = User::max('iduser');
+            $newUserId = $lastUserId ? $lastUserId + 1 : 1;
 
-            Pemilik::create($validated);
+            // 2. Create User
+            $user = User::create([
+                'iduser' => $newUserId,
+                'nama' => $validated['nama'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+            ]);
+
+            // 3. Assign Role Pemilik (idrole = 5)
+            UserRole::create([
+                'iduser' => $user->iduser,
+                'idrole' => 5, // Role Pemilik
+            ]);
+
+            // 4. Generate idpemilik (ambil max id + 1)
+            $lastPemilikId = Pemilik::max('idpemilik');
+            $newPemilikId = $lastPemilikId ? $lastPemilikId + 1 : 1;
+
+            // 5. Create Pemilik
+            Pemilik::create([
+                'idpemilik' => $newPemilikId,
+                'iduser' => $user->iduser,
+                'no_wa' => $validated['no_wa'],
+                'alamat' => $validated['alamat'],
+            ]);
 
             DB::commit();
 
             return redirect()
                 ->route('admin.pemilik.index')
-                ->with('success', 'Pemilik berhasil ditambahkan');
+                ->with('success', 'Pemilik berhasil ditambahkan. Email: ' . $user->email);
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()
@@ -61,10 +93,7 @@ class PemilikController extends Controller
     public function edit($id)
     {
         $pemilik = Pemilik::with('user')->findOrFail($id);
-        $users = User::doesntHave('pemilik')
-            ->orWhere('iduser', $pemilik->iduser)
-            ->get();
-        return view('admin.pemilik.edit', compact('pemilik', 'users'));
+        return view('admin.pemilik.edit', compact('pemilik'));
     }
 
     public function update(Request $request, $id)
@@ -72,13 +101,9 @@ class PemilikController extends Controller
         $pemilik = Pemilik::findOrFail($id);
 
         $validated = $request->validate([
-            'iduser' => 'required|exists:user,iduser|unique:pemilik,iduser,' . $id . ',idpemilik',
             'no_wa' => 'required|string|max:15',
             'alamat' => 'required|string|max:255',
         ], [
-            'iduser.required' => 'User harus dipilih',
-            'iduser.exists' => 'User tidak valid',
-            'iduser.unique' => 'User sudah terdaftar sebagai pemilik',
             'no_wa.required' => 'No WhatsApp harus diisi',
             'no_wa.max' => 'No WhatsApp maksimal 15 karakter',
             'alamat.required' => 'Alamat harus diisi',
@@ -94,7 +119,7 @@ class PemilikController extends Controller
 
             return redirect()
                 ->route('admin.pemilik.index')
-                ->with('success', 'Pemilik berhasil diupdate');
+                ->with('success', 'Data pemilik berhasil diupdate');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()
@@ -118,13 +143,22 @@ class PemilikController extends Controller
 
             DB::beginTransaction();
 
+            $userId = $pemilik->iduser;
+
+            // 1. Delete Pemilik
             $pemilik->delete();
+
+            // 2. Delete UserRole
+            UserRole::where('iduser', $userId)->delete();
+
+            // 3. Delete User
+            User::where('iduser', $userId)->delete();
 
             DB::commit();
 
             return redirect()
                 ->route('admin.pemilik.index')
-                ->with('success', 'Pemilik berhasil dihapus');
+                ->with('success', 'Pemilik beserta user dan role berhasil dihapus');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()

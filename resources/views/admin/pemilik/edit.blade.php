@@ -20,39 +20,63 @@
                         @csrf
                         @method('PUT')
                         
-                        <div class="mb-3">
-                            <label for="iduser" class="form-label">User <span class="text-danger">*</span></label>
-                            <select class="form-select @error('iduser') is-invalid @enderror" 
-                                    id="iduser" name="iduser" required>
-                                <option value="">-- Pilih User --</option>
-                                @foreach($users as $user)
-                                    <option value="{{ $user->iduser }}" {{ old('iduser', $pemilik->iduser) == $user->iduser ? 'selected' : '' }}>
-                                        {{ $user->nama }} ({{ $user->email }})
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('iduser')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5 class="mb-3 text-primary"><i class="fas fa-user me-2"></i>Data User</h5>
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="no_wa" class="form-label">No. WhatsApp <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control @error('no_wa') is-invalid @enderror" 
-                                   id="no_wa" name="no_wa" value="{{ old('no_wa', $pemilik->no_wa) }}" 
-                                   placeholder="Contoh: 081234567890" required>
-                            @error('no_wa')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Nama Lengkap</label>
+                                    <input type="text" class="form-control" 
+                                           value="{{ $pemilik->user->nama }}" disabled>
+                                    <small class="text-muted">Data user tidak dapat diubah</small>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="text" class="form-control" 
+                                           value="{{ $pemilik->user->email }}" disabled>
+                                    <small class="text-muted">Data user tidak dapat diubah</small>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="alamat" class="form-label">Alamat <span class="text-danger">*</span></label>
-                            <textarea class="form-control @error('alamat') is-invalid @enderror" 
-                                      id="alamat" name="alamat" rows="3" required>{{ old('alamat', $pemilik->alamat) }}</textarea>
-                            @error('alamat')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                        <hr class="my-4">
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5 class="mb-3 text-primary"><i class="fas fa-address-card me-2"></i>Data Pemilik</h5>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="no_wa" class="form-label">No. WhatsApp <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control @error('no_wa') is-invalid @enderror" 
+                                           id="no_wa" name="no_wa" value="{{ old('no_wa', $pemilik->no_wa) }}" 
+                                           placeholder="Contoh: 081234567890" required>
+                                    @error('no_wa')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="alamat" class="form-label">Alamat <span class="text-danger">*</span></label>
+                                    <textarea class="form-control @error('alamat') is-invalid @enderror" 
+                                              id="alamat" name="alamat" rows="3" required>{{ old('alamat', $pemilik->alamat) }}</textarea>
+                                    @error('alamat')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
 
                         <div class="d-flex gap-2">
