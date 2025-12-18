@@ -81,4 +81,43 @@ class UserRole extends Pivot
     {
         return $this->belongsTo(Role::class, 'idrole', 'idrole');
     }
+
+    /**
+     * Relasi ke TemuDokter (melalui idrole_user)
+     * Digunakan untuk validasi delete
+     */
+    public function temuDokter()
+    {
+        return $this->hasMany(TemuDokter::class, 'idrole_user', 'idrole_user');
+    }
+
+    /**
+     * Check if this UserRole is being used by other entities
+     * 
+     * @return bool
+     */
+    public function isUsedByOtherEntities(): bool
+    {
+        // Cek apakah ada TemuDokter yang menggunakan idrole_user ini
+        $hasTemuDokter = $this->temuDokter()->exists();
+        
+        return $hasTemuDokter;
+    }
+
+    /**
+     * Get usage details for error message
+     * 
+     * @return array
+     */
+    public function getUsageDetails(): array
+    {
+        $details = [];
+        
+        $temuDokterCount = $this->temuDokter()->count();
+        if ($temuDokterCount > 0) {
+            $details[] = "$temuDokterCount janji temu dokter";
+        }
+        
+        return $details;
+    }
 }

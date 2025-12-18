@@ -157,7 +157,13 @@ class UserController extends Controller
     }
 
     /**
-     * Menghapus pengguna tertentu.
+     * Menghapus pengguna tertentu
+     * 
+     * Logika:
+     * 1. Validasi user exists dan bukan user yang sedang login
+     * 2. Hapus semua UserRole (cascade)
+     * 3. Hapus User
+     * 4. Jika error SQL constraint → berarti user masih dipakai
      *
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse
@@ -165,50 +171,75 @@ class UserController extends Controller
     public function destroy($id)
     {
         try {
-            // Gunakan find() daripada findOrFail() sebelum transaksi,
-            // atau pastikan findOrFail() di luar try/catch jika ingin Laravel menangani 404
+            // 1. Validasi: User exists
             $user = User::findOrFail($id);
             
-            // Cek apakah user sedang login
-            // Perbaikan: Gunakan helper Auth::id() atau Auth::user()->getKey()
-            if (Auth::id() && $user->getKey() == Auth::id()) {
+            // 2. Validasi: Bukan user yang sedang login
+            if (session('user_id') && $user->iduser == session('user_id')) {
                 return redirect()
                     ->back()
                     ->with('error', 'Tidak dapat menghapus user yang sedang login');
             }
-            
-            // Check if user has related data (Asumsi: Anda punya relasi 'pemilik')
-            // Harap pastikan relasi 'pemilik' ada di model User.
-            if ($user->pemilik()->exists()) {
-                return redirect()
-                    ->back()
-                    ->with('error', 'User tidak dapat dihapus karena memiliki data pemilik terkait');
-            }
 
             DB::beginTransaction();
 
-            // Hapus relasi user_role terlebih dahulu (Asumsi: Relasi 'userRole' ada)
-            // Jika relasi 'userRole' menggunakan Foreign Key dengan ON DELETE CASCADE, 
-            // baris ini mungkin tidak diperlukan. Namun, jika ini tabel pivot, ini benar.
-            if ($user->userRole()->exists()) {
+            $userName = $user->nama;
+            $userEmail = $user->email;
+            
+            // 3. Cascade delete: Hapus semua UserRole terlebih dahulu
+            $userRoleCount = $user->userRole()->count();
+            if ($userRoleCount > 0) {
                 $user->userRole()->delete();
             }
             
+            // 4. Hapus User - jika masih dipakai, SQL akan throw error
             $user->delete();
 
             DB::commit();
 
+            $message = "User '{$userName}' ({$userEmail}) berhasil dihapus";
+            if ($userRoleCount > 0) {
+                $message .= " beserta {$userRoleCount} role";
+            }
+
             return redirect()
                 ->route('admin.users.index')
-                ->with('success', 'User berhasil dihapus');
-        } catch (\Exception $e) {
+                ->with('success', $message);
+                
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return redirect()
+                ->back()
+                ->with('error', 'User tidak ditemukan');
+                
+        } catch (\Illuminate\Database\QueryException $e) {
             DB::rollBack();
-            // Perbaikan: Tangkap ModelNotFoundException secara terpisah jika ingin error 404 yang standar
-            if ($e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
+            
+            // SQL Constraint error - user masih digunakan
+            if ($e->getCode() == '23000') {
                 return redirect()
                     ->back()
-                    ->with('error', 'User tidak ditemukan');
+                    ->with('error', "User '{$user->nama}' tidak dapat dihapus karena masih digunakan oleh data lain (pemilik, rekam medis, atau temu dokter). Silakan hapus data terkait terlebih dahulu.");
             }
+            
+            // Error SQL lainnya
+            \Log::error('User Delete SQL Error: ' . $e->getMessage(), [
+                'iduser' => $id,
+                'code' => $e->getCode()
+            ]);
+            
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal menghapus user karena kesalahan database');
+                
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            // Log error untuk debugging
+            \Log::error('User Delete Error: ' . $e->getMessage(), [
+                'iduser' => $id,
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return redirect()
                 ->back()
                 ->with('error', 'Gagal menghapus user: ' . $e->getMessage());

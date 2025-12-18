@@ -32,7 +32,21 @@
                     @if(session('success'))
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
                             <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    @if(session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
+                    @if(session('info'))
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                            <i class="fas fa-info-circle me-2"></i>{{ session('info') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     @endif
 
@@ -43,13 +57,17 @@
                                     <th>No</th>
                                     <th>Nama</th>
                                     <th>Email</th>
+                                    <th>Role</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- Sample data - replace with actual data -->
-                                @foreach ($users as $user)
-                                <tr>
+                                @forelse ($users as $user)
+                                    @php
+                                        $activeRole = $user->getActiveRole();
+                                        $totalRoles = $user->userRole()->count();
+                                    @endphp
+                                    <tr>
                                         <td>{{ $loop->iteration }}</td>
                                         <td>
                                             <div class="d-flex align-items-center">
@@ -61,53 +79,60 @@
                                                 </div>
                                             </div>
                                         </td>
+                                        <td>{{ $user->email }}</td>
                                         <td>
-                                            {{ $user->email }}
+                                            @if($activeRole)
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-user-shield me-1"></i>{{ $activeRole->role->nama_role }}
+                                                </span>
+                                            @else
+                                                <span class="badge bg-secondary">No Role</span>
+                                            @endif
+                                            @if($totalRoles > 1)
+                                                <small class="text-muted d-block mt-1">+{{ $totalRoles - 1 }} more</small>
+                                            @endif
                                         </td>
                                         <td>
-                                            <div class="btn-group" role="group">
-                                                <a href="{{ route('admin.users.edit', $user->iduser) }}" class="btn btn-sm btn-outline-warning" title="Edit user">
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a href="{{ route('admin.users.edit', $user->iduser) }}" class="btn btn-outline-warning" title="Edit user">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <form action="{{ route('admin.users.destroy', $user->iduser) }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus user {{ $user->nama }}? User yang sedang login tidak bisa dihapus.')">
+                                                @if($totalRoles > 0)
+                                                    <a href="{{ route('admin.user-role.index') }}" class="btn btn-outline-info" title="Manage roles">
+                                                        <i class="fas fa-user-shield"></i>
+                                                    </a>
+                                                    <form action="{{ route('admin.user-role.delete-all', $user->iduser) }}" method="POST" class="d-inline" onsubmit="return confirm('⚠️ HAPUS SEMUA ROLE?\n\nUser: {{ $user->nama }}\nTotal role: {{ $totalRoles }}\n\nSemua role akan dihapus dari user ini.\nSetelah itu, user dapat dihapus jika tidak terikat data lain.\n\nLanjutkan?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-outline-secondary" title="Hapus semua role">
+                                                            <i class="fas fa-user-times"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                                <form action="{{ route('admin.users.destroy', $user->iduser) }}" method="POST" class="d-inline" onsubmit="return confirm('⚠️ HAPUS USER?\n\nUser: {{ $user->nama }}\nEmail: {{ $user->email }}\nRole: {{ $totalRoles }} role\n\n{{ $totalRoles > 0 ? "Semua role akan ikut terhapus.\n\n" : "" }}Catatan: Jika user masih digunakan oleh data lain (pemilik, rekam medis, temu dokter), proses akan dibatalkan.\n\nLanjutkan?')">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Hapus user">
+                                                    <button type="submit" class="btn btn-outline-danger" title="Hapus user{{ $totalRoles > 0 ? ' (beserta role-nya)' : '' }}">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>
                                             </div>
                                         </td>
                                     </tr>
-                                @endforeach
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4 text-muted">
+                                            <i class="fas fa-users fa-2x mb-2"></i>
+                                            <p>No users found</p>
+                                        </td>
+                                    </tr>
+                                @endforelse
                             </tbody>
                         </table>
-                    </div>
-
-                    <!-- Pagination -->
-                    <div class="d-flex justify-content-between align-items-center mt-4">
-                        <div>
-                            <small class="text-muted">Showing 1 to 3 of 3 entries</small>
-                        </div>
-                        <nav>
-                            <ul class="pagination pagination-sm mb-0">
-                                <li class="page-item disabled">
-                                    <span class="page-link">Previous</span>
-                                </li>
-                                <li class="page-item active">
-                                    <span class="page-link">1</span>
-                                </li>
-                                <li class="page-item disabled">
-                                    <span class="page-link">Next</span>
-                                </li>
-                            </ul>
-                        </nav>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-
 @endsection

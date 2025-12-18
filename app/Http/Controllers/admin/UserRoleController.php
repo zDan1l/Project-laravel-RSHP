@@ -161,9 +161,93 @@ class UserRoleController extends Controller
     }
 
     /**
-     * Remove role from user (hanya hapus role, bukan deactivate)
+     * Remove role from user dengan validasi lengkap (Best Practice)
+     * 
+     * Validasi:
+     * 1. UserRole exists
+     * 2. Tidak boleh hapus role aktif terakhir
+     * 3. Cek foreign key constraint (TemuDokter, dll)
+     * 4. Soft delete jika masih digunakan, hard delete jika aman
      */
     public function destroy($iduser, $idrole)
+    {
+        try {
+            DB::beginTransaction();
+
+            // 1. Validasi: UserRole exists
+            $userRole = UserRole::where('iduser', $iduser)
+                               ->where('idrole', $idrole)
+                               ->first();
+
+            if (!$userRole) {
+                return redirect()
+                    ->back()
+                    ->with('error', 'Role tidak ditemukan untuk user ini');
+            }
+
+            $user = User::find($iduser);
+            $role = Role::find($idrole);
+
+            // 2. Info: Check jika ini role aktif terakhir (tapi tetap allow delete)
+            $isLastActiveRole = false;
+            if ($userRole->status == 1) {
+                $totalActiveRoles = UserRole::where('iduser', $iduser)
+                                           ->where('status', 1)
+                                           ->count();
+                
+                $isLastActiveRole = ($totalActiveRoles <= 1);
+                // CATATAN: Tidak lagi block delete role terakhir
+                // Ini memungkinkan admin untuk menghapus semua role sebelum delete user
+            }
+
+            // 3. Validasi: Cek foreign key constraint
+            if ($userRole->isUsedByOtherEntities()) {
+                $usageDetails = $userRole->getUsageDetails();
+                $message = "Tidak dapat menghapus role '{$role->nama_role}' dari user {$user->nama}. ";
+                $message .= "Role ini masih digunakan oleh: " . implode(', ', $usageDetails) . ". ";
+                $message .= "Silakan hapus data terkait terlebih dahulu atau nonaktifkan role ini.";
+                
+                DB::rollBack();
+                return redirect()
+                    ->back()
+                    ->with('error', $message);
+            }
+
+            // 4. Safe to delete - Hard delete karena tidak ada dependency
+            $userRole->delete();
+
+            DB::commit();
+
+            $message = "Role '{$role->nama_role}' berhasil dihapus dari user {$user->nama}";
+            if ($isLastActiveRole) {
+                $message .= ". User sekarang tidak memiliki role aktif dan dapat dihapus jika diperlukan.";
+            }
+
+            return redirect()
+                ->route('admin.user-role.index')
+                ->with('success', $message);
+                
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            // Log error untuk debugging
+            \Log::error('UserRole Delete Error: ' . $e->getMessage(), [
+                'iduser' => $iduser,
+                'idrole' => $idrole,
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal menghapus role: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Deactivate role instead of delete (Alternative to destroy)
+     * Untuk kasus dimana role masih digunakan tapi ingin dinonaktifkan
+     */
+    public function deactivate($iduser, $idrole)
     {
         try {
             DB::beginTransaction();
@@ -179,34 +263,96 @@ class UserRoleController extends Controller
             }
 
             // Cek jika ini satu-satunya role aktif
-            if ($userRole->status == 1) {
-                $totalActiveRoles = UserRole::where('iduser', $iduser)
-                                           ->where('status', 1)
-                                           ->count();
-                
-                if ($totalActiveRoles <= 1) {
-                    return redirect()
-                        ->back()
-                        ->with('error', 'Tidak dapat menghapus role aktif terakhir. User harus memiliki minimal 1 role aktif.');
-                }
+            $totalActiveRoles = UserRole::where('iduser', $iduser)
+                                       ->where('status', 1)
+                                       ->count();
+            
+            if ($totalActiveRoles <= 1 && $userRole->status == 1) {
+                DB::rollBack();
+                return redirect()
+                    ->back()
+                    ->with('error', 'Tidak dapat menonaktifkan role aktif terakhir.');
             }
 
             $user = User::find($iduser);
             $role = Role::find($idrole);
 
-            // Hapus role dari user
-            $userRole->delete();
+            // Soft delete - set status to 0
+            UserRole::where('iduser', $iduser)
+                   ->where('idrole', $idrole)
+                   ->update(['status' => 0]);
 
             DB::commit();
 
             return redirect()
                 ->route('admin.user-role.index')
-                ->with('success', "Role '{$role->nama_role}' berhasil dihapus dari user {$user->nama}");
+                ->with('success', "Role '{$role->nama_role}' berhasil dinonaktifkan untuk user {$user->nama}");
+                
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()
                 ->back()
-                ->with('error', 'Gagal menghapus role: ' . $e->getMessage());
+                ->with('error', 'Gagal menonaktifkan role: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete ALL roles from a user
+     * Digunakan untuk "membersihkan" user sebelum dihapus
+     * 
+     * WARNING: Ini akan menghapus SEMUA role dari user
+     */
+    public function deleteAllRoles($iduser)
+    {
+        try {
+            DB::beginTransaction();
+
+            $user = User::findOrFail($iduser);
+            $userRoles = UserRole::where('iduser', $iduser)->get();
+
+            if ($userRoles->isEmpty()) {
+                return redirect()
+                    ->back()
+                    ->with('info', "User {$user->nama} tidak memiliki role.");
+            }
+
+            // Cek apakah ada role yang masih digunakan
+            foreach ($userRoles as $userRole) {
+                if ($userRole->isUsedByOtherEntities()) {
+                    $role = Role::find($userRole->idrole);
+                    $usageDetails = $userRole->getUsageDetails();
+                    $message = "Tidak dapat menghapus semua role. ";
+                    $message .= "Role '{$role->nama_role}' masih digunakan oleh: " . implode(', ', $usageDetails) . ". ";
+                    $message .= "Silakan hapus data terkait terlebih dahulu.";
+                    
+                    DB::rollBack();
+                    return redirect()
+                        ->back()
+                        ->with('error', $message);
+                }
+            }
+
+            // Safe to delete all roles
+            $roleCount = $userRoles->count();
+            UserRole::where('iduser', $iduser)->delete();
+
+            DB::commit();
+
+            return redirect()
+                ->back()
+                ->with('success', "Semua role ({$roleCount} role) berhasil dihapus dari user {$user->nama}. User sekarang dapat dihapus.");
+                
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            \Log::error('Delete All Roles Error: ' . $e->getMessage(), [
+                'iduser' => $iduser,
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal menghapus semua role: ' . $e->getMessage());
         }
     }
 }

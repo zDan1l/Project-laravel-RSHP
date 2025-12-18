@@ -49,7 +49,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'isAdministrator'])-
     Route::post('/users-roles', [UserRoleController::class, 'store'])->name('user-role.store');
     Route::get('/users-roles/{iduser}/edit', [UserRoleController::class, 'edit'])->name('user-role.edit');
     Route::put('/users-roles/{iduser}', [UserRoleController::class, 'update'])->name('user-role.update');
+    // PENTING: Route dengan literal path harus didefinisikan SEBELUM route dengan parameter dinamis
+    Route::delete('/users-roles/{iduser}/delete-all', [UserRoleController::class, 'deleteAllRoles'])->name('user-role.delete-all');
     Route::delete('/users-roles/{iduser}/{idrole}', [UserRoleController::class, 'destroy'])->name('user-role.destroy');
+    Route::post('/users-roles/{iduser}/{idrole}/deactivate', [UserRoleController::class, 'deactivate'])->name('user-role.deactivate');
     
     Route::get('/roles', [RoleController::class, 'index'])->name('roles.index');
     Route::get('/roles/create', [RoleController::class, 'create'])->name('roles.create');

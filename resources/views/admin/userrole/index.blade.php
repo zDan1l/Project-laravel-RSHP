@@ -108,10 +108,10 @@
                                                 <form action="{{ route('admin.user-role.destroy', [$user->iduser, $activeRole->idrole]) }}" 
                                                       method="POST" 
                                                       class="d-inline" 
-                                                      onsubmit="return confirm('Hapus role {{ $activeRole->role->nama_role }} dari {{ $user->nama }}? User akan tidak memiliki role aktif.')">
+                                                      onsubmit="return confirm('⚠️ HAPUS PERMANENT?\\n\\nRole {{ $activeRole->role->nama_role }} akan dihapus dari {{ $user->nama }}.\\n\\nCatatan: Jika role ini masih digunakan oleh data lain (misal: Temu Dokter), maka proses akan dibatalkan.\\n\\nLanjutkan?')">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-outline-danger" title="Hapus role">
+                                                    <button type="submit" class="btn btn-outline-danger" title="Hapus role (permanent)">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>

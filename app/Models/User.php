@@ -59,4 +59,65 @@ class User extends Authenticatable
     {
         return $this->hasMany(Pemilik::class, 'iduser', 'iduser');
     }
+
+    /**
+     * Relasi ke RekamMedis sebagai dokter pemeriksa
+     */
+    public function rekamMedisAsDokter(): HasMany
+    {
+        return $this->hasMany(RekamMedis::class, 'dokter_pemeriksa', 'iduser');
+    }
+
+    /**
+     * Check if this User is being used by other entities
+     * Excluding UserRole (akan di-cascade delete)
+     * 
+     * @return bool
+     */
+    public function isUsedByOtherEntities(): bool
+    {
+        // Cek Pemilik
+        if ($this->pemilik()->exists()) {
+            return true;
+        }
+
+        // Cek RekamMedis sebagai dokter
+        if ($this->rekamMedisAsDokter()->exists()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Get usage details for error message
+     * 
+     * @return array
+     */
+    public function getUsageDetails(): array
+    {
+        $details = [];
+        
+        $pemilikCount = $this->pemilik()->count();
+        if ($pemilikCount > 0) {
+            $details[] = "$pemilikCount data pemilik";
+        }
+        
+        $rekamMedisCount = $this->rekamMedisAsDokter()->count();
+        if ($rekamMedisCount > 0) {
+            $details[] = "$rekamMedisCount rekam medis sebagai dokter";
+        }
+        
+        return $details;
+    }
+
+    /**
+     * Get active UserRole for this user
+     * 
+     * @return UserRole|null
+     */
+    public function getActiveRole()
+    {
+        return $this->userRole()->where('status', 1)->first();
+    }
 }
