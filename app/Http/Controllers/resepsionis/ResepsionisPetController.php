@@ -48,6 +48,9 @@ class ResepsionisPetController extends Controller
         try {
             DB::beginTransaction();
 
+            // Convert jenis_kelamin to single character for database (char(1))
+            $validated['jenis_kelamin'] = $validated['jenis_kelamin'] === 'Jantan' ? 'J' : 'B';
+
             // Generate ID manually since idpet is not auto-increment
             $lastId = Pet::max('idpet');
             $validated['idpet'] = $lastId ? $lastId + 1 : 1;
@@ -101,6 +104,9 @@ class ResepsionisPetController extends Controller
 
         try {
             DB::beginTransaction();
+
+            // Convert jenis_kelamin to single character for database (char(1))
+            $validated['jenis_kelamin'] = $validated['jenis_kelamin'] === 'Jantan' ? 'J' : 'B';
 
             $pet->update($validated);
 
