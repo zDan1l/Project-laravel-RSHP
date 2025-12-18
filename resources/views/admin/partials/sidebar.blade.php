@@ -58,6 +58,15 @@
                 </a>
             </li>
 
+            <!-- Dokter -->
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('admin.dokter.*') ? 'active' : '' }}" 
+                   href="{{ route('admin.dokter.index') }}">
+                    <i class="fas fa-user-md"></i>
+                    <span>Data Dokter</span>
+                </a>
+            </li>
+
             <!-- Divider -->
             <li class="nav-item">
                 <hr class="sidebar-divider" style="border-color: #374151; margin: 0.5rem 1rem;">

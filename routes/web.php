@@ -61,6 +61,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'isAdministrator'])-
     Route::put('/roles/{id}', [RoleController::class, 'update'])->name('roles.update');
     Route::delete('/roles/{id}', [RoleController::class, 'destroy'])->name('roles.destroy');
     
+    // Dokter Management
+    Route::get('/dokter', [App\Http\Controllers\admin\DokterController::class, 'index'])->name('dokter.index');
+    Route::get('/dokter/create', [App\Http\Controllers\admin\DokterController::class, 'create'])->name('dokter.create');
+    Route::post('/dokter', [App\Http\Controllers\admin\DokterController::class, 'store'])->name('dokter.store');
+    Route::get('/dokter/{id}/edit', [App\Http\Controllers\admin\DokterController::class, 'edit'])->name('dokter.edit');
+    Route::put('/dokter/{id}', [App\Http\Controllers\admin\DokterController::class, 'update'])->name('dokter.update');
+    Route::delete('/dokter/{id}', [App\Http\Controllers\admin\DokterController::class, 'destroy'])->name('dokter.destroy');
+    
     // Pet Management
     Route::get('/pemilik', [PemilikController::class, 'index'])->name('pemilik.index');
     Route::get('/pemilik/create', [PemilikController::class, 'create'])->name('pemilik.create');
@@ -162,8 +170,6 @@ Route::prefix('perawat')->name('perawat.')->middleware(['auth', 'isPerawat'])->g
     Route::post('/rekam-medis', [App\Http\Controllers\PerawatController::class, 'store'])->name('rekam-medis.store');
     Route::get('/rekam-medis/{id}', [App\Http\Controllers\PerawatController::class, 'show'])->name('rekam-medis.show');
     
-    // Perawat TIDAK BISA menambah/edit/hapus detail tindakan terapi
-    // Hanya DOKTER yang bisa mengelola detail tindakan
 });
 
 // dokter router
@@ -199,15 +205,7 @@ Route::prefix('pemilik')->name('pemilik.')->middleware(['auth', 'isPemilik'])->g
     // View My Pets
     Route::get('/my-pets', [App\Http\Controllers\pemilik\PemilikDashboardController::class, 'index'])->name('my-pets');
     
-    // View Pet Details
-    // Route::get('/pets/{id}', [App\Http\Controllers\pemilik\PemilikPetController::class, 'show'])->name('pets.show');
-    
-    // View Appointments (upcoming feature)
-    // Route::get('/appointments', [App\Http\Controllers\pemilik\PemilikAppointmentController::class, 'index'])->name('appointments.index');
-    
-    // View Medical Records (upcoming feature)
-    // Route::get('/medical-records', [App\Http\Controllers\pemilik\PemilikMedicalRecordController::class, 'index'])->name('medical-records.index');
-});
+   });
 
 
 
