@@ -76,6 +76,10 @@ class LoginController extends Controller
                 case 'receptionist':
                     return '/resepsionis/dashboard';
                     
+                case 'pemilik':
+                case 'owner':
+                    return '/pemilik/dashboard';
+                    
                 case 'apoteker':
                 case 'pharmacist':
                     return '/apoteker/dashboard';

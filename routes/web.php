@@ -191,7 +191,23 @@ Route::prefix('dokter')->name('dokter.')->middleware(['auth', 'isDokter'])->grou
     Route::delete('/rekam-medis/{id}/detail/{idDetail}', [DokterRekamMedisController::class, 'deleteDetail'])->name('rekam-medis.detail.delete');
 });
 
-
+// Pemilik Routes
+Route::prefix('pemilik')->name('pemilik.')->middleware(['auth', 'isPemilik'])->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [App\Http\Controllers\pemilik\PemilikDashboardController::class, 'index'])->name('dashboard');
+    
+    // View My Pets
+    Route::get('/my-pets', [App\Http\Controllers\pemilik\PemilikDashboardController::class, 'index'])->name('my-pets');
+    
+    // View Pet Details
+    // Route::get('/pets/{id}', [App\Http\Controllers\pemilik\PemilikPetController::class, 'show'])->name('pets.show');
+    
+    // View Appointments (upcoming feature)
+    // Route::get('/appointments', [App\Http\Controllers\pemilik\PemilikAppointmentController::class, 'index'])->name('appointments.index');
+    
+    // View Medical Records (upcoming feature)
+    // Route::get('/medical-records', [App\Http\Controllers\pemilik\PemilikMedicalRecordController::class, 'index'])->name('medical-records.index');
+});
 
 
 
